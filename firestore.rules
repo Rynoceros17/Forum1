@@ -1,61 +1,128 @@
 /**
- * @file Firestore Security Rules for Cosmic Orbit
+ * @file Cosmic Orbit Firestore Security Rules
  * @version Prototyping
  *
  * @description
- * This ruleset enforces a strict user-ownership model for user profiles stored
- * under the `/users/{userId}` collection.  Only the authenticated user matching
- * the `userId` in the path can read or write their own profile data. All writes
- * must be authenticated. The rules prioritize security and data privacy. Schema
- * validation is relaxed for rapid prototyping.
+ * This ruleset enforces a strict user-ownership model for user profiles and allows public read access to posts and systems.
  *
- * @dataStructure
- * - `/users/{userId}`: Stores user profile information. The `userId` parameter
- *   must match the Firebase Auth UID of the requesting user.
+ * Data Structure:
+ * - /users/{userId}: Stores individual user profiles. Access is restricted to the owning user.
+ * - /posts/{postId}: Stores posts. Publicly readable, but creation, updates, and deletion are restricted to the post author.
+ * - /systems/{systemId}: Stores system information. Publicly readable, but writes are not permitted in the prototype.
+ * - /users/{userId}/votes/{postId}: Stores individual votes by user. Access is restricted to the owning user.
  *
- * @keySecurityDecisions
- * - User profiles are private and accessible only to the authenticated user.
- * - Listing all users is explicitly denied.
- * - Schema validation is minimized for rapid prototyping.
+ * Key Security Decisions:
+ * - Users can only read and write their own profile data.
+ * - Posts are publicly readable but only the author can modify or delete them.
+ * - Listing of users is disallowed.
+ * - Systems are publicly readable, but only admins can create, update, or delete them (currently disabled in the prototype).
  *
- * @denormalizationForAuthorization
- * - No denormalization is explicitly used at this level, but the design anticipates
- *   denormalization at the system/post level in future iterations. For example,
- *   a `members` map will be added to the `/systems/{systemId}/posts/{postId}`
- *   documents to manage permissions without requiring complex `get()` calls.
+ * Denormalization for Authorization:
+ * - Posts require an `authorId` field to enforce ownership for writes.
  *
- * @structuralSegregation
- * - User profiles are segregated under `/users/{userId}` to enforce strict
- *   ownership.  Future public content (e.g., posts) will be stored in top-level
- *   collections (e.g., `/systems/{systemId}/posts/{postId}`) to allow for public
- *   read access while maintaining owner-only write access.
+ * Structural Segregation:
+ * - Private user data is stored under /users/{userId}, while public post data is stored in the top-level /posts/{postId} collection.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * @description Enforces user-ownership for user profiles. Only the authenticated user can read/write their profile.
+     * @description Controls access to user profile information.
      * @path /users/{userId}
-     * @allow (create) User with UID 'user123' creates their profile at /users/user123.
-     * @allow (get, update, delete) User with UID 'user123' reads/updates/deletes their profile at /users/user123.
-     * @deny (create, get, update, delete) User with UID 'user456' attempts to access /users/user123.
-     * @principle Enforces document ownership for all operations.
+     * @allow (create) - User can create their own profile if the userId matches their auth UID.
+     * @allow (get, update, delete) - User can only access their own profile.
+     * @deny (create) - User cannot create a profile with a different userId.
+     * @deny (update, delete) - User cannot modify or delete another user's profile.
+     * @principle Enforces document ownership for writes.
      */
     match /users/{userId} {
-      // Helper function to check if the authenticated user is the owner of the document.
-      function isOwner(userId) {
-        return request.auth != null && request.auth.uid == userId;
+      function isSignedIn() {
+        return request.auth != null;
       }
 
-      // Helper function to check if the authenticated user is the existing owner of the document.
-      function isExistingOwner(userId) {
-        return isOwner(userId) && resource != null;
+      function isOwner(userId) {
+        return request.auth.uid == userId;
       }
+
+      function isExistingOwner(userId) {
+        return isSignedIn() && isOwner(userId) && resource.data != null;
+      }
+
       allow get: if isOwner(userId);
       allow list: if false;
-      allow create: if isOwner(userId) && request.resource.data.id == userId;
-      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+      allow create: if isSignedIn() && request.auth.uid == userId;
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Controls access to posts.
+     * @path /posts/{postId}
+     * @allow (get, list) - All users can read posts.
+     * @allow (create) - Only authenticated users can create posts, and authorId must match their UID.
+     * @allow (update, delete) - Only the author of a post can update or delete it.
+     * @deny (create) - Unauthenticated users cannot create posts.
+     * @deny (update, delete) - Users cannot modify or delete posts they don't own.
+     * @principle Enforces public read access with owner-only writes.
+     */
+    match /posts/{postId} {
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      function isOwner(authorId) {
+        return request.auth.uid == authorId;
+      }
+
+       function isExistingOwner(authorId) {
+        return isSignedIn() && isOwner(resource.data.authorId);
+      }
+
+      allow get, list: if true;
+      allow create: if isSignedIn() && request.resource.data.authorId == request.auth.uid;
+      allow update: if isSignedIn() && isExistingOwner(resource.data.authorId);
+      allow delete: if isSignedIn() && isExistingOwner(resource.data.authorId);
+    }
+
+    /**
+     * @description Controls access to systems.
+     * @path /systems/{systemId}
+     * @allow (get, list) - All users can read system information.
+     * @deny (create, update, delete) - No one can create, update or delete systems in this prototype.
+     * @principle Enforces public read access with restricted writes.
+     */
+    match /systems/{systemId} {
+      allow get, list: if true;
+      allow create, update, delete: if false; // TODO: Add admin-only access for system management.
+    }
+
+     /**
+     * @description Controls access to user's votes on posts.
+     * @path /users/{userId}/votes/{postId}
+     * @allow (create) - User can create their own votes if the userId matches their auth UID.
+     * @allow (get, update, delete) - User can only access their own votes.
+     * @deny (create) - User cannot create a vote with a different userId.
+     * @deny (update, delete) - User cannot modify or delete another user's vote.
+     * @principle Enforces document ownership for writes.
+     */
+    match /users/{userId}/votes/{postId} {
+          function isSignedIn() {
+            return request.auth != null;
+          }
+
+          function isOwner(userId) {
+            return request.auth.uid == userId;
+          }
+
+          function isExistingOwner(userId) {
+            return isSignedIn() && isOwner(userId) && resource.data != null;
+          }
+          
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create: if isSignedIn() && request.auth.uid == userId;
+      allow update: if isExistingOwner(userId);
       allow delete: if isExistingOwner(userId);
     }
   }
