@@ -73,14 +73,14 @@ export function VoteButtons({ postId, initialThrust }: { postId: string, initial
         size="icon" 
         onClick={() => handleVote("up")} 
         className={cn(
-          "text-muted-foreground hover:text-accent",
+          "text-muted-foreground hover:text-accent hover:bg-accent/10",
           vote === 'up' && 'text-accent'
         )}
         aria-label="Upvote"
       >
-        <Rocket className={cn("h-5 w-5 transition-transform duration-200", vote === 'up' && 'scale-125 -translate-y-0.5')} />
+        <Rocket className={cn("h-5 w-5 transition-all duration-200", vote === 'up' && 'scale-125 -translate-y-0.5 fill-accent/40')} />
       </Button>
-      <span className="font-bold text-sm font-headline w-10 text-center" title="ΔThrust">
+      <span className="font-bold text-sm font-headline w-10 text-center py-1" title="ΔThrust">
         {thrust}
       </span>
       <Button 
@@ -88,12 +88,12 @@ export function VoteButtons({ postId, initialThrust }: { postId: string, initial
         size="icon" 
         onClick={() => handleVote("down")} 
         className={cn(
-          "text-muted-foreground hover:text-primary",
-          vote === 'down' && 'text-primary'
+          "text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10",
+          vote === 'down' && 'text-rose-500'
         )}
         aria-label="Downvote"
       >
-        <BlackHoleIcon className={cn("h-5 w-5 transition-transform duration-200", vote === 'down' && 'scale-110 rotate-90')} />
+        <BlackHoleIcon className={cn("h-5 w-5 transition-all duration-200", vote === 'down' && 'scale-110 rotate-[360deg] fill-rose-500/40')} />
       </Button>
     </div>
   );

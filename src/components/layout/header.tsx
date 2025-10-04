@@ -2,7 +2,6 @@
 
 import { Rocket } from "lucide-react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { CreatePostDialog } from "../posts/create-post-dialog";
 import { UserNav } from "../auth/user-nav";
 import { useUser } from "@/firebase";
@@ -13,7 +12,7 @@ export function Header() {
   const { user, isUserLoading } = useUser();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-sm">
       <div className="container flex h-14 max-w-screen-2xl items-center">
         <div className="mr-4 flex items-center">
           <Link href="/" className="flex items-center gap-2 mr-6">
@@ -25,13 +24,13 @@ export function Header() {
           <nav className="flex items-center gap-4 text-sm lg:gap-6">
             <Link
               href="/"
-              className="transition-colors hover:text-foreground/80 text-foreground/60"
+              className="transition-colors hover:text-foreground text-muted-foreground"
             >
               Orbit
             </Link>
             <Link
               href="/discover"
-              className="transition-colors hover:text-foreground/80 text-foreground/60"
+              className="transition-colors hover:text-foreground text-muted-foreground"
             >
               Star Map
             </Link>

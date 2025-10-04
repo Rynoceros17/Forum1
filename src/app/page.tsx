@@ -11,6 +11,7 @@ import { useCollection, useFirestore } from "@/firebase";
 import { collection, orderBy, query } from "firebase/firestore";
 import { Post } from "@/app/lib/types";
 import { useMemoFirebase } from "@/firebase/provider";
+import { Rocket } from "lucide-react";
 
 export default function Home() {
   const firestore = useFirestore();
@@ -24,19 +25,17 @@ export default function Home() {
   const displayPosts = posts && posts.length > 0 ? posts : mockPosts;
 
   return (
-    <div className="min-h-screen bg-background text-foreground" style={{
-      backgroundImage: 'radial-gradient(ellipse 80% 80% at 50% -20%,rgba(120,119,198,0.2), hsla(0,0%,100%,0))'
-    }}>
+    <div className="min-h-screen bg-background text-foreground">
       <Header />
       <main className="container mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 px-4 py-8">
         <div className="lg:col-span-2 space-y-4">
-          {isLoading && <p>Loading posts...</p>}
+          {isLoading && Array.from({ length: 3 }).map((_, i) => <PostItem.Skeleton key={i} />)}
           {!isLoading && displayPosts.map((post) => (
             <PostItem key={post.id} post={post} />
           ))}
         </div>
         <aside className="space-y-6">
-          <Card className="border-border/40 bg-card/50 backdrop-blur-sm">
+          <Card className="border-border bg-card/80 backdrop-blur-sm">
             <CardHeader>
               <CardTitle className="font-headline text-lg">Top Systems</CardTitle>
             </CardHeader>
@@ -48,13 +47,15 @@ export default function Home() {
                       <div className="flex items-center gap-3">
                         <span className="text-muted-foreground font-bold w-4">{index + 1}</span>
                          <Avatar className="h-6 w-6">
-                           <AvatarFallback>{system.name.charAt(2).toUpperCase()}</AvatarFallback>
+                           <AvatarFallback className="bg-muted-foreground/20 text-xs">
+                             <Rocket className="h-3 w-3"/>
+                           </AvatarFallback>
                          </Avatar>
-                        <Link href={`/${system.name}`} className="font-medium hover:underline">{system.name}</Link>
+                        <Link href={`/${system.name}`} className="font-medium hover:text-accent transition-colors">{system.name}</Link>
                       </div>
-                      <Button variant="outline" size="sm">Join</Button>
+                      <Button variant="outline" size="sm" className="hover:bg-accent hover:text-accent-foreground">Join</Button>
                     </div>
-                    {index < systems.length - 1 && <Separator className="bg-border/40"/>}
+                    {index < systems.length - 1 && <Separator className="bg-border/60"/>}
                   </li>
                 ))}
               </ul>
