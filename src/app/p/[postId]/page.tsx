@@ -35,8 +35,9 @@ function PostLoadingSkeleton() {
     );
   }
 
-export default function PostPage({ params: { postId } }: { params: { postId: string } }) {
+export default function PostPage({ params }: { params: { postId: string } }) {
   const firestore = useFirestore();
+  const { postId } = params;
 
   const postRef = useMemoFirebase(() => {
     if (!firestore || !postId) return null;
