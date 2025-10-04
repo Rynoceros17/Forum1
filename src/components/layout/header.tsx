@@ -1,9 +1,15 @@
-import { Rocket, UserCircle } from "lucide-react";
+import { Rocket } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { CreatePostDialog } from "../posts/create-post-dialog";
+import { UserNav } from "../auth/user-nav";
+import { useUser } from "@/firebase";
+import { AuthDialog } from "../auth/auth-dialog";
+import { Skeleton } from "../ui/skeleton";
 
 export function Header() {
+  const { user, isUserLoading } = useUser();
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 max-w-screen-2xl items-center">
@@ -31,10 +37,9 @@ export function Header() {
         </div>
         <div className="flex flex-1 items-center justify-end gap-2">
           <CreatePostDialog />
-          <Button variant="ghost" size="icon">
-            <UserCircle className="h-5 w-5" />
-            <span className="sr-only">User Profile</span>
-          </Button>
+          {isUserLoading && <Skeleton className="h-8 w-8 rounded-full" />}
+          {!isUserLoading && !user && <AuthDialog />}
+          {!isUserLoading && user && <UserNav user={user} />}
         </div>
       </div>
     </header>
