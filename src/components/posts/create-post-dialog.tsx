@@ -19,9 +19,7 @@ export function CreatePostDialog() {
   const { user } = useUser();
   const [open, setOpen] = useState(false);
 
-  // If the user is not logged in, the DialogTrigger for AuthDialog
-  // will be rendered inside the main Dialog component.
-  // We don't render AuthDialog directly here anymore to avoid duplicates.
+  // This button is the trigger for both logged-in and guest users.
   const triggerButton = (
     <Button>
       <PlusCircle className="mr-2 h-4 w-4" />
@@ -30,11 +28,12 @@ export function CreatePostDialog() {
   );
 
   if (!user) {
-    // Wrap the trigger in AuthDialog to handle authentication
+    // For guests, wrap the trigger button with AuthDialog.
+    // Clicking "Launchpad" will open the sign-in/sign-up modal.
     return <AuthDialog>{triggerButton}</AuthDialog>;
   }
 
-  // If the user is logged in, show the create post dialog
+  // For logged-in users, show the standard create post dialog.
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>

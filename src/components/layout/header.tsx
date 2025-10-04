@@ -48,6 +48,7 @@ export function Header() {
           )}
           {!isUserLoading && !user && (
             <>
+              {/* The CreatePostDialog now handles showing the AuthDialog for non-users */}
               <CreatePostDialog />
               <AuthDialog />
             </>
