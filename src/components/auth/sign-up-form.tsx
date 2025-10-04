@@ -13,31 +13,86 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useAuth, initiateEmailSignUp } from "@/firebase";
+import { useAuth, useFirestore } from "@/firebase";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { useToast } from "@/hooks/use-toast";
+import { setDocumentNonBlocking } from "@/firebase/non-blocking-updates";
 
 const formSchema = z.object({
+  username: z.string().min(3, { message: "Username must be at least 3 characters."}),
   email: z.string().email({ message: "Invalid email address." }),
   password: z.string().min(6, { message: "Password must be at least 6 characters." }),
 });
 
 export function SignUpForm({ onCompletion }: { onCompletion: () => void }) {
   const auth = useAuth();
+  const firestore = useFirestore();
+  const { toast } = useToast();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      username: "",
       email: "",
       password: "",
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    initiateEmailSignUp(auth, values.email, values.password);
-    onCompletion();
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!auth || !firestore) return;
+
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
+      const user = userCredential.user;
+
+      await updateProfile(user, {
+        displayName: values.username,
+        photoURL: `https://api.dicebear.com/8.x/bottts/svg?seed=${values.username}`
+      });
+
+      const userRef = doc(firestore, "users", user.uid);
+      setDocumentNonBlocking(userRef, {
+        username: values.username,
+        email: values.email,
+        avatar: `https://api.dicebear.com/8.x/bottts/svg?seed=${values.username}`,
+        karma: 0,
+        createdAt: serverTimestamp(),
+      }, { merge: true });
+
+      toast({
+        title: "Account Created!",
+        description: "Welcome to the cosmos!",
+      });
+
+      onCompletion();
+
+    } catch (error: any) {
+      console.error(error);
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong.",
+        description: error.message,
+      });
+    }
   }
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+        <FormField
+          control={form.control}
+          name="username"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Username</FormLabel>
+              <FormControl>
+                <Input placeholder="starlord27" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <FormField
           control={form.control}
           name="email"

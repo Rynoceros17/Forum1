@@ -1,16 +1,5 @@
 import { PlaceHolderImages } from "@/lib/placeholder-images";
-
-export type Post = {
-  id: string;
-  system: string;
-  author: string;
-  avatar: string;
-  time: string;
-  title:string;
-  content: string;
-  thrust: number;
-  comments: number;
-};
+import { Post } from "./types";
 
 export const posts: Post[] = [
   {

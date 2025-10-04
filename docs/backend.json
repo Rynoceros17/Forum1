@@ -39,12 +39,78 @@
           "items": {
             "type": "string"
           }
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp when the user account was created."
         }
       },
       "required": [
         "id",
         "username",
         "email"
+      ]
+    },
+    "Post": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Post",
+      "type": "object",
+      "description": "A post made by a user within a system.",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        },
+        "authorId": {
+          "type": "string"
+        },
+        "author": {
+          "type": "string"
+        },
+        "avatar": {
+          "type": "string",
+          "format": "uri"
+        },
+        "system": {
+          "type": "string"
+        },
+        "thrust": {
+          "type": "number"
+        },
+        "comments": {
+          "type": "number"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "title",
+        "content",
+        "authorId",
+        "author",
+        "system"
+      ]
+    },
+    "System": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "System",
+      "type": "object",
+      "description": "A community or forum, called a System.",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "members": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "name"
       ]
     }
   },
@@ -61,7 +127,7 @@
         "definition": {
           "entityName": "User",
           "schema": {
-            "$ref": "#/backend/entities/User"
+            "$ref": "#/entities/User"
           },
           "description": "Stores user profile information. Uses path-based ownership for data privacy. The 'userId' parameter corresponds to the Firebase Auth UID.",
           "params": [
@@ -71,8 +137,54 @@
             }
           ]
         }
+      },
+      {
+        "path": "/posts/{postId}",
+        "definition": {
+          "entityName": "Post",
+          "schema": {
+            "$ref": "#/entities/Post"
+          },
+          "description": "Stores all posts across all systems.",
+          "params": [
+            {
+              "name": "postId",
+              "description": "The unique ID of the post."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/systems/{systemId}",
+        "definition": {
+          "entityName": "System",
+          "schema": {
+            "$ref": "#/entities/System"
+          },
+          "description": "Stores information about each community system.",
+          "params": [
+            {
+              "name": "systemId",
+              "description": "The unique ID of the system."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/votes/{postId}",
+        "definition": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "vote": {
+                "type": "string",
+                "enum": ["up", "down"]
+              }
+            }
+          },
+          "description": "Stores a user's vote on a specific post."
+        }
       }
-    ],
-    "reasoning": "This design prioritizes security and scalability for the Cosmic Orbit application. User data is stored under the `/users/{userId}` collection, ensuring path-based ownership and simplifying security rules. This structure directly supports private user data. Since the application will include community features that may require users to join a system or create a post, a denormalization strategy must be applied for optimal performance and security. \n\n**Authorization Independence & QAPs**: User-specific data (profile info) is stored in `/users/{userId}`. Posts within Systems could be structured as `/systems/{systemId}/posts/{postId}` with a denormalized `members` map on each post. This approach means listing posts in a System only requires querying the `posts` collection within that `systemId`, and security rules can ensure only members can view/create posts based on the denormalized `members` data, without requiring complex `get()` calls to parent documents.\n\nThe decision not to include subcollections for posts or systems under the user path is based on the application's scale and feature requirements. While initially simpler, deeply nested subcollections can introduce limitations in query capabilities and may not efficiently scale as the application grows. Centralized collections for systems and posts, with appropriate denormalization of authorization data, offer better performance and flexibility for complex queries and future feature enhancements, like cross-system content aggregation or advanced search functionalities."
+    ]
   }
 }

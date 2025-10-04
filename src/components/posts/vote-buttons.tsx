@@ -5,31 +5,65 @@ import { Rocket } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BlackHoleIcon } from "@/components/icons";
 import { cn } from "@/lib/utils";
+import { useFirestore, useUser } from "@/firebase";
+import { doc, increment, writeBatch } from "firebase/firestore";
+import { useToast } from "@/hooks/use-toast";
 
 type VoteState = "up" | "down" | null;
 
-export function VoteButtons({ initialThrust }: { initialThrust: number }) {
+export function VoteButtons({ postId, initialThrust }: { postId: string, initialThrust: number }) {
   const [vote, setVote] = useState<VoteState>(null);
   const [thrust, setThrust] = useState(initialThrust);
+  const { user } = useUser();
+  const firestore = useFirestore();
+  const { toast } = useToast();
 
-  const handleVote = (newVote: "up" | "down") => {
-    setThrust(currentThrust => {
-      // If clicking the same button, unvote
-      if (newVote === vote) {
-        setVote(null);
-        return newVote === 'up' ? currentThrust - 1 : currentThrust + 1;
-      }
+  const handleVote = async (newVote: "up" | "down") => {
+    if (!user || !firestore) {
+      toast({
+        variant: "destructive",
+        title: "Authentication Error",
+        description: "You must be logged in to vote.",
+      });
+      return;
+    }
 
-      // If switching vote
-      if (vote !== null) {
-        setVote(newVote);
-        return newVote === 'up' ? currentThrust + 2 : currentThrust - 2;
-      }
-      
-      // If no vote, new vote
-      setVote(newVote);
-      return newVote === 'up' ? currentThrust + 1 : currentThrust - 1;
-    });
+    const postRef = doc(firestore, "posts", postId);
+    const userVoteRef = doc(firestore, "users", user.uid, "votes", postId);
+    const batch = writeBatch(firestore);
+
+    let thrustChange = 0;
+    let newVoteState: VoteState = newVote;
+
+    if (newVote === vote) { // Undoing vote
+      newVoteState = null;
+      thrustChange = newVote === 'up' ? -1 : 1;
+      batch.delete(userVoteRef);
+    } else if (vote !== null) { // Switching vote
+      thrustChange = newVote === 'up' ? 2 : -2;
+      batch.set(userVoteRef, { vote: newVote });
+    } else { // New vote
+      thrustChange = newVote === 'up' ? 1 : -1;
+      batch.set(userVoteRef, { vote: newVote });
+    }
+
+    setThrust(thrust + thrustChange);
+    setVote(newVoteState);
+
+    batch.update(postRef, { thrust: increment(thrustChange) });
+    
+    try {
+      await batch.commit();
+    } catch (error) {
+      console.error("Error committing vote: ", error);
+      setThrust(thrust); // Revert optimistic update
+      setVote(vote);
+      toast({
+        variant: "destructive",
+        title: "Vote Error",
+        description: "Could not save your vote. Please try again.",
+      });
+    }
   };
 
   return (

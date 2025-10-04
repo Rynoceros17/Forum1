@@ -1,17 +1,22 @@
+'use client';
 import { MessageSquare, Share2 } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { VoteButtons } from "./vote-buttons";
-import type { Post } from "@/app/lib/mock-data";
+import type { Post } from "@/app/lib/types";
+import { formatDistanceToNow } from 'date-fns';
 
 export function PostItem({ post }: { post: Post }) {
+
+  const timeAgo = post.createdAt ? formatDistanceToNow(post.createdAt.toDate(), { addSuffix: true }) : post.time;
+
   return (
     <Card className="overflow-hidden border-border/40 bg-card/50 backdrop-blur-sm transition-all hover:border-accent/40">
       <div className="flex">
         <div className="p-2 sm:p-4 bg-black/10 flex flex-col items-center justify-start">
-          <VoteButtons initialThrust={post.thrust} />
+          <VoteButtons postId={post.id} initialThrust={post.thrust} />
         </div>
         <div className="flex-1">
           <CardHeader className="pb-2">
@@ -23,7 +28,7 @@ export function PostItem({ post }: { post: Post }) {
               <Link href={`/s/${post.system.toLowerCase()}`} className="font-bold text-foreground hover:underline">s/{post.system}</Link>
               <span className="hidden sm:inline">•</span>
               <span className="hidden sm:inline">Posted by u/{post.author}</span>
-              <span className="hidden sm:inline">{post.time}</span>
+              <span className="hidden sm:inline">{timeAgo}</span>
             </div>
             <CardTitle className="text-lg font-headline mt-2">{post.title}</CardTitle>
           </CardHeader>
