@@ -21,7 +21,7 @@ export function PostItem({ post }: { post: Post }) {
         </div>
         <div className="flex-1">
           <CardHeader className="pb-2">
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
               <Avatar className="h-5 w-5">
                 <AvatarImage src={post.avatar} alt={`@${post.author}`} />
                 <AvatarFallback>{post.system.charAt(0).toUpperCase()}</AvatarFallback>

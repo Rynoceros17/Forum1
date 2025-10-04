@@ -7,12 +7,14 @@ import { UserNav } from "../auth/user-nav";
 import { useUser } from "@/firebase";
 import { AuthDialog } from "../auth/auth-dialog";
 import { Skeleton } from "../ui/skeleton";
+import { Button } from "../ui/button";
+import { PlusCircle } from "lucide-react";
 
 export function Header() {
   const { user, isUserLoading } = useUser();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-lg">
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur-sm">
       <div className="container flex h-14 max-w-screen-2xl items-center">
         <div className="mr-4 flex items-center">
           <Link href="/" className="flex items-center gap-2 mr-6 group">
@@ -38,8 +40,13 @@ export function Header() {
         </div>
         <div className="flex flex-1 items-center justify-end gap-2">
           {user && <CreatePostDialog />}
-          {isUserLoading && <Skeleton className="h-8 w-8 rounded-full" />}
-          {!isUserLoading && !user && <AuthDialog />}
+          {isUserLoading && <Skeleton className="h-9 w-24 rounded-md" />}
+          {!isUserLoading && !user && (
+            <>
+              <CreatePostDialog />
+              <AuthDialog />
+            </>
+          )}
           {!isUserLoading && user && <UserNav user={user} />}
         </div>
       </div>
