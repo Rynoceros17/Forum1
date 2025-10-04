@@ -25,7 +25,7 @@ export function CreatePostDialog() {
         <DialogHeader>
           <DialogTitle className="font-headline text-2xl">Launch a New Post</DialogTitle>
           <DialogDescription>
-            Share your discoveries with the galaxy. AI can help you add relevant tags.
+            Share your discoveries with the galaxy.
           </DialogDescription>
         </DialogHeader>
         <CreatePostForm />
