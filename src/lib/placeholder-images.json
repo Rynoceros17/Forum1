@@ -1,3 +1,22 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "avatar1",
+      "description": "Astronaut avatar 1",
+      "imageUrl": "https://images.unsplash.com/photo-1668042583100-15aa5e323238?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxhc3Ryb25hdXQlMjBoZWxtZXR8ZW58MHx8fHwxNzU5NTUzODkyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "astronaut helmet"
+    },
+    {
+      "id": "avatar2",
+      "description": "Astronaut avatar 2",
+      "imageUrl": "https://images.unsplash.com/photo-1635324236775-868d3680b65f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxzcGFjZSUyMHN1aXR8ZW58MHx8fHwxNzU5NTY5ODI2fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "space suit"
+    },
+    {
+      "id": "avatar3",
+      "description": "Astronaut avatar 3",
+      "imageUrl": "https://images.unsplash.com/photo-1620852643476-cdfbee0aeabc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxwbGFuZXQlMjBiYWNrZ3JvdW5kfGVufDB8fHx8MTc1OTYwMTQyM3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "planet background"
+    }
+  ]
 }
