@@ -19,18 +19,26 @@ export function CreatePostDialog() {
   const { user } = useUser();
   const [open, setOpen] = useState(false);
 
+  // If the user is not logged in, the DialogTrigger for AuthDialog
+  // will be rendered inside the main Dialog component.
+  // We don't render AuthDialog directly here anymore to avoid duplicates.
+  const triggerButton = (
+    <Button>
+      <PlusCircle className="mr-2 h-4 w-4" />
+      Launchpad
+    </Button>
+  );
+
   if (!user) {
-    // This button will now trigger the AuthDialog
-    return <AuthDialog />;
+    // Wrap the trigger in AuthDialog to handle authentication
+    return <AuthDialog>{triggerButton}</AuthDialog>;
   }
 
+  // If the user is logged in, show the create post dialog
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Launchpad
-        </Button>
+        {triggerButton}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[625px]">
         <DialogHeader>

@@ -14,12 +14,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SignInForm } from "./sign-in-form";
 import { SignUpForm } from "./sign-up-form";
 
-export function AuthDialog() {
+export function AuthDialog({ children }: { children?: React.ReactNode }) {
   const [open, setOpen] = useState(false);
+  
+  const trigger = children ? children : <Button variant="outline">Sign In</Button>;
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">Sign In</Button>
+        {trigger}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>

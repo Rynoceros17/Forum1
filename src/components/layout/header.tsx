@@ -39,15 +39,19 @@ export function Header() {
           </nav>
         </div>
         <div className="flex flex-1 items-center justify-end gap-2">
-          {user && <CreatePostDialog />}
           {isUserLoading && <Skeleton className="h-9 w-24 rounded-md" />}
+          {!isUserLoading && user && (
+            <>
+              <CreatePostDialog />
+              <UserNav user={user} />
+            </>
+          )}
           {!isUserLoading && !user && (
             <>
               <CreatePostDialog />
               <AuthDialog />
             </>
           )}
-          {!isUserLoading && user && <UserNav user={user} />}
         </div>
       </div>
     </header>
