@@ -1,6 +1,6 @@
 "use client";
 
-import { Rocket } from "lucide-react";
+import { Rocket, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { CreatePostDialog } from "../posts/create-post-dialog";
 import { UserNav } from "../auth/user-nav";
@@ -12,12 +12,12 @@ export function Header() {
   const { user, isUserLoading } = useUser();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-sm">
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-lg">
       <div className="container flex h-14 max-w-screen-2xl items-center">
         <div className="mr-4 flex items-center">
-          <Link href="/" className="flex items-center gap-2 mr-6">
-            <Rocket className="h-6 w-6 text-accent" />
-            <span className="font-bold font-headline text-lg">
+          <Link href="/" className="flex items-center gap-2 mr-6 group">
+            <Rocket className="h-6 w-6 text-primary group-hover:animate-pulse" />
+            <span className="font-bold font-headline text-lg bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
               Cosmic Orbit
             </span>
           </Link>
@@ -37,7 +37,7 @@ export function Header() {
           </nav>
         </div>
         <div className="flex flex-1 items-center justify-end gap-2">
-          <CreatePostDialog />
+          {user && <CreatePostDialog />}
           {isUserLoading && <Skeleton className="h-8 w-8 rounded-full" />}
           {!isUserLoading && !user && <AuthDialog />}
           {!isUserLoading && user && <UserNav user={user} />}

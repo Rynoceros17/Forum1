@@ -35,7 +35,7 @@ export default function Home() {
           ))}
         </div>
         <aside className="space-y-6">
-          <Card className="border-border bg-card/80 backdrop-blur-sm">
+          <Card className="border-border/60 bg-card/80 backdrop-blur-sm">
             <CardHeader>
               <CardTitle className="font-headline text-lg">Top Systems</CardTitle>
             </CardHeader>
@@ -51,9 +51,9 @@ export default function Home() {
                              <Rocket className="h-3 w-3"/>
                            </AvatarFallback>
                          </Avatar>
-                        <Link href={`/${system.name}`} className="font-medium hover:text-accent transition-colors">{system.name}</Link>
+                        <Link href={`/s/${system.name.replace('s/','')}`} className="font-medium hover:text-primary transition-colors">{system.name}</Link>
                       </div>
-                      <Button variant="outline" size="sm" className="hover:bg-accent hover:text-accent-foreground">Join</Button>
+                      <Button variant="outline" size="sm" className="hover:bg-primary hover:text-primary-foreground">Join</Button>
                     </div>
                     {index < systems.length - 1 && <Separator className="bg-border/60"/>}
                   </li>

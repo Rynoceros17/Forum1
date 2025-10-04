@@ -73,12 +73,12 @@ export function VoteButtons({ postId, initialThrust }: { postId: string, initial
         size="icon" 
         onClick={() => handleVote("up")} 
         className={cn(
-          "text-muted-foreground hover:text-accent hover:bg-accent/10",
-          vote === 'up' && 'text-accent'
+          "text-muted-foreground hover:text-primary hover:bg-primary/10",
+          vote === 'up' && 'text-primary'
         )}
         aria-label="Upvote"
       >
-        <Rocket className={cn("h-5 w-5 transition-all duration-200", vote === 'up' && 'scale-125 -translate-y-0.5 fill-accent/40')} />
+        <Rocket className={cn("h-5 w-5 transition-all duration-200", vote === 'up' && 'scale-125 -translate-y-0.5 fill-primary/40')} />
       </Button>
       <span className="font-bold text-sm font-headline w-10 text-center py-1" title="ΔThrust">
         {thrust}

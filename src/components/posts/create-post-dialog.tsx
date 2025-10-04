@@ -19,7 +19,25 @@ export function CreatePostDialog() {
   const [open, setOpen] = useState(false);
 
   if (!user) {
-    return null;
+    // Return a trigger that opens the AuthDialog
+    return (
+       <Dialog>
+        <DialogTrigger asChild>
+          <Button>
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Launchpad
+          </Button>
+        </DialogTrigger>
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>Authentication Required</DialogTitle>
+                <DialogDescription>
+                You need to be signed in to launch a post.
+                </DialogDescription>
+            </DialogHeader>
+        </DialogContent>
+      </Dialog>
+    );
   }
 
   return (
