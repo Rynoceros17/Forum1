@@ -1,0 +1,78 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user account in the Cosmic Orbit application. User authentication will be handled by Firebase.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user. (Primary Key)"
+        },
+        "username": {
+          "type": "string",
+          "description": "The user's chosen username, unique within the application.",
+          "format": "string"
+        },
+        "email": {
+          "type": "string",
+          "description": "The user's email address, used for communication and account recovery.",
+          "format": "email"
+        },
+        "avatar": {
+          "type": "string",
+          "description": "URL of the user's avatar image.",
+          "format": "uri"
+        },
+        "bio": {
+          "type": "string",
+          "description": "A short biography or 'about me' section for the user's profile."
+        },
+        "karma": {
+          "type": "number",
+          "description": "The user's accumulated karma points, reflecting their contributions to the community."
+        },
+        "joinedSystems": {
+          "type": "array",
+          "description": "References to the Systems (communities) the user has joined. (Relationship: User 1:N SystemMembership)",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "username",
+        "email"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profile information. Uses path-based ownership for data privacy. The 'userId' parameter corresponds to the Firebase Auth UID.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique ID of the user, matching their Firebase Auth UID."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "This design prioritizes security and scalability for the Cosmic Orbit application. User data is stored under the `/users/{userId}` collection, ensuring path-based ownership and simplifying security rules. This structure directly supports private user data. Since the application will include community features that may require users to join a system or create a post, a denormalization strategy must be applied for optimal performance and security. \n\n**Authorization Independence & QAPs**: User-specific data (profile info) is stored in `/users/{userId}`. Posts within Systems could be structured as `/systems/{systemId}/posts/{postId}` with a denormalized `members` map on each post. This approach means listing posts in a System only requires querying the `posts` collection within that `systemId`, and security rules can ensure only members can view/create posts based on the denormalized `members` data, without requiring complex `get()` calls to parent documents.\n\nThe decision not to include subcollections for posts or systems under the user path is based on the application's scale and feature requirements. While initially simpler, deeply nested subcollections can introduce limitations in query capabilities and may not efficiently scale as the application grows. Centralized collections for systems and posts, with appropriate denormalization of authorization data, offer better performance and flexibility for complex queries and future feature enhancements, like cross-system content aggregation or advanced search functionalities."
+  }
+}
