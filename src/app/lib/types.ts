@@ -10,5 +10,14 @@ export type Post = {
   title: string;
   content: string;
   thrust: number;
-  comments: number;
+  commentCount: number;
+};
+
+export type Comment = {
+  id: string;
+  authorId: string;
+  author: string;
+  avatar: string;
+  content: string;
+  createdAt: Timestamp;
 };

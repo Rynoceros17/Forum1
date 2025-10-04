@@ -66,7 +66,7 @@ export function CreatePostForm({ onCompletion }: { onCompletion: () => void }) {
       authorId: user.uid,
       avatar: user.photoURL || `https://api.dicebear.com/8.x/bottts/svg?seed=${user.uid}`,
       thrust: 0,
-      comments: 0,
+      commentCount: 0,
       createdAt: serverTimestamp(),
     });
 

@@ -80,7 +80,7 @@
         "thrust": {
           "type": "number"
         },
-        "comments": {
+        "commentCount": {
           "type": "number"
         },
         "createdAt": {
@@ -111,6 +111,36 @@
       },
       "required": [
         "name"
+      ]
+    },
+    "Comment": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Comment",
+      "type": "object",
+      "description": "A comment made by a user on a post.",
+      "properties": {
+        "content": {
+          "type": "string"
+        },
+        "authorId": {
+          "type": "string"
+        },
+        "author": {
+          "type": "string"
+        },
+        "avatar": {
+          "type": "string",
+          "format": "uri"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "content",
+        "authorId",
+        "author"
       ]
     }
   },
@@ -150,6 +180,26 @@
             {
               "name": "postId",
               "description": "The unique ID of the post."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/posts/{postId}/comments/{commentId}",
+        "definition": {
+          "entityName": "Comment",
+          "schema": {
+            "$ref": "#/entities/Comment"
+          },
+          "description": "Stores comments for a specific post.",
+          "params": [
+            {
+              "name": "postId",
+              "description": "The ID of the post being commented on."
+            },
+            {
+              "name": "commentId",
+              "description": "The unique ID of the comment."
             }
           ]
         }
