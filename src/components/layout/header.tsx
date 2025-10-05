@@ -1,6 +1,6 @@
 "use client";
 
-import { Rocket, Sparkles } from "lucide-react";
+import { Rocket } from "lucide-react";
 import Link from "next/link";
 import { CreatePostDialog } from "../posts/create-post-dialog";
 import { UserNav } from "../auth/user-nav";
@@ -23,18 +23,7 @@ export function Header() {
             </span>
           </Link>
           <nav className="flex items-center gap-4 text-sm lg:gap-6">
-            <Link
-              href="/"
-              className="transition-colors hover:text-foreground text-muted-foreground"
-            >
-              Orbit
-            </Link>
-            <Link
-              href="/discover"
-              className="transition-colors hover:text-foreground text-muted-foreground"
-            >
-              Star Map
-            </Link>
+            <span className="text-muted-foreground">Find your piece of the universe.</span>
           </nav>
         </div>
         <div className="flex flex-1 items-center justify-end gap-2">
