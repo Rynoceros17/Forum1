@@ -30,7 +30,13 @@ export function PostItem({ post }: { post: Post }) {
                 <AvatarImage src={post.avatar} alt={`@${post.author}`} />
                 <AvatarFallback>{post.system.charAt(0).toUpperCase()}</AvatarFallback>
               </Avatar>
-              <Link href={`/s/${systemSlug}`} className="font-bold text-foreground hover:underline hover:text-primary z-10 relative">s/{post.system}</Link>
+              <Link 
+                href={`/s/${systemSlug}`} 
+                className="font-bold text-foreground hover:underline hover:text-primary z-10 relative"
+                onClick={(e) => e.stopPropagation()}
+              >
+                s/{post.system}
+              </Link>
               <span className="hidden sm:inline">•</span>
               <span className="hidden sm:inline">Posted by u/{post.author}</span>
               <span className="whitespace-nowrap">{timeAgo}</span>

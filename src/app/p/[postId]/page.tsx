@@ -15,6 +15,7 @@ import { MessageSquare, Share2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CreateCommentForm } from '@/components/comments/create-comment-form';
 import { CommentList } from '@/components/comments/comment-list';
+import { systems } from '@/app/lib/mock-data';
 
 function PostLoadingSkeleton() {
     return (
@@ -35,8 +36,9 @@ function PostLoadingSkeleton() {
     );
   }
 
-export default function PostPage({ params: { postId } }: { params: { postId: string } }) {
+export default function PostPage({ params }: { params: { postId: string } }) {
   const firestore = useFirestore();
+  const { postId } = params;
 
   const postRef = useMemoFirebase(() => {
     if (!firestore || !postId) return null;
@@ -46,6 +48,9 @@ export default function PostPage({ params: { postId } }: { params: { postId: str
   const { data: post, isLoading } = useDoc<Post>(postRef);
 
   const timeAgo = post?.createdAt ? formatDistanceToNow(post.createdAt.toDate(), { addSuffix: true }) : '';
+  const system = post ? systems.find(s => s.name === post.system) : null;
+  const systemSlug = system ? system.slug : post?.system.toLowerCase().replace(/ /g, '-');
+
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -65,7 +70,7 @@ export default function PostPage({ params: { postId } }: { params: { postId: str
                                 <AvatarImage src={post.avatar} alt={`@${post.author}`} />
                                 <AvatarFallback>{post.system.charAt(0).toUpperCase()}</AvatarFallback>
                             </Avatar>
-                            <Link href={`/s/${post.system.toLowerCase()}`} className="font-bold text-foreground hover:underline hover:text-primary z-10 relative">s/{post.system}</Link>
+                            <Link href={`/s/${systemSlug}`} className="font-bold text-foreground hover:underline hover:text-primary z-10 relative">s/{post.system}</Link>
                             <span className="hidden sm:inline">•</span>
                             <span className="hidden sm:inline">Posted by u/{post.author}</span>
                             <span className="whitespace-nowrap">{timeAgo}</span>
