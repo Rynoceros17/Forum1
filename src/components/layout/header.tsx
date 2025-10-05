@@ -1,13 +1,13 @@
 "use client";
 
-import { Rocket } from "lucide-react";
+import { ArrowLeft, Rocket } from "lucide-react";
 import Link from "next/link";
 import { CreatePostDialog } from "../posts/create-post-dialog";
 import { UserNav } from "../auth/user-nav";
 import { useUser } from "@/firebase";
 import { AuthDialog } from "../auth/auth-dialog";
 import { Skeleton } from "../ui/skeleton";
-import { CreateSystemDialog } from "../systems/create-system-dialog";
+import { Button } from "../ui/button";
 
 export function Header() {
   const { user, isUserLoading } = useUser();
@@ -32,15 +32,24 @@ export function Header() {
           {isUserLoading && <Skeleton className="h-9 w-48 rounded-md" />}
           {!isUserLoading && user && (
             <>
-              <CreateSystemDialog />
+              <Button asChild variant="outline">
+                <a href="http://novaseek.earth:3000">
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back to NOVASEEK
+                </a>
+              </Button>
               <CreatePostDialog />
               <UserNav user={user} />
             </>
           )}
           {!isUserLoading && !user && (
             <>
-              {/* The CreatePostDialog now handles showing the AuthDialog for non-users */}
-              <CreateSystemDialog />
+              <Button asChild variant="outline">
+                <a href="http://novaseek.earth:3000">
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back to NOVASEEK
+                </a>
+              </Button>
               <CreatePostDialog />
               <AuthDialog />
             </>
