@@ -1,23 +1,25 @@
-
 'use client';
 import { Header } from "@/components/layout/header";
 import { PostItem } from "@/components/posts/post-item";
-import { posts as mockPosts, systems } from "@/app/lib/mock-data";
+import { systems } from "@/app/lib/mock-data";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import Link from "next/link";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useCollection, useFirestore } from "@/firebase";
 import { collection, orderBy, query, where } from "firebase/firestore";
 import { Post } from "@/app/lib/types";
 import { useMemoFirebase } from "@/firebase/provider";
-import { Rocket, Rss, Users } from "lucide-react";
+import { Rocket } from "lucide-react";
 
 export default function SystemPage({ params }: { params: { systemName: string } }) {
   const firestore = useFirestore();
   
-  const systemName = decodeURIComponent(params.systemName);
+  const systemSlug = decodeURIComponent(params.systemName);
+
+  // Find the current system from mock data to display its info
+  const currentSystem = systems.find(s => s.slug.toLowerCase() === systemSlug.toLowerCase());
+  const systemName = currentSystem?.name || systemSlug;
   
   const postsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -30,18 +32,14 @@ export default function SystemPage({ params }: { params: { systemName: string } 
   
   const { data: posts, isLoading } = useCollection<Post>(postsQuery);
 
-  // Find the current system from mock data to display its info
-  const currentSystem = systems.find(s => s.name.toLowerCase() === `s/${systemName.toLowerCase()}`);
-  const displayPosts = posts && posts.length > 0 ? posts : mockPosts.filter(p => p.system.toLowerCase() === systemName.toLowerCase());
-
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Header />
       <main className="container mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 px-4 py-8">
         <div className="lg:col-span-2 space-y-4">
           {isLoading && Array.from({ length: 3 }).map((_, i) => <PostItem.Skeleton key={i} />)}
-          {!isLoading && displayPosts.length > 0 ? (
-            displayPosts.map((post) => (
+          {posts && posts.length > 0 ? (
+            posts.map((post) => (
               <PostItem key={post.id} post={post} />
             ))
           ) : (
@@ -65,7 +63,7 @@ export default function SystemPage({ params }: { params: { systemName: string } 
                   </AvatarFallback>
                 </Avatar>
                 <CardTitle className="font-headline text-xl">{currentSystem.name}</CardTitle>
-                <CardDescription>Welcome to the {currentSystem.name} system.</CardDescription>
+                <CardDescription>{currentSystem.description}</CardDescription>
               </CardHeader>
               <CardContent>
                 <Separator className="my-4" />

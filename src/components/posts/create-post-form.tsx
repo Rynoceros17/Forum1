@@ -96,7 +96,7 @@ export function CreatePostForm({ onCompletion }: { onCompletion: () => void }) {
                 </FormControl>
                 <SelectContent>
                   {systems.map((system) => (
-                    <SelectItem key={system.name} value={system.name.replace('s/','')}>
+                    <SelectItem key={system.slug} value={system.name}>
                       {system.name}
                     </SelectItem>
                   ))}

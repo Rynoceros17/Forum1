@@ -8,10 +8,14 @@ import { VoteButtons } from "./vote-buttons";
 import type { Post } from "@/app/lib/types";
 import { formatDistanceToNow } from 'date-fns';
 import { Skeleton } from "../ui/skeleton";
+import { systems } from "@/app/lib/mock-data";
 
 export function PostItem({ post }: { post: Post }) {
 
   const timeAgo = post.createdAt ? formatDistanceToNow(post.createdAt.toDate(), { addSuffix: true }) : post.time;
+  const system = systems.find(s => s.name === post.system);
+  const systemSlug = system ? system.slug : post.system.toLowerCase().replace(/ /g, '-');
+
 
   return (
     <Card className="overflow-hidden border-border/60 bg-card/80 backdrop-blur-sm transition-all duration-300 ease-in-out hover:border-primary/40 hover:shadow-xl hover:shadow-primary/10">
@@ -26,7 +30,7 @@ export function PostItem({ post }: { post: Post }) {
                 <AvatarImage src={post.avatar} alt={`@${post.author}`} />
                 <AvatarFallback>{post.system.charAt(0).toUpperCase()}</AvatarFallback>
               </Avatar>
-              <Link href={`/s/${post.system.toLowerCase()}`} className="font-bold text-foreground hover:underline hover:text-primary z-10 relative">s/{post.system}</Link>
+              <Link href={`/s/${systemSlug}`} className="font-bold text-foreground hover:underline hover:text-primary z-10 relative">s/{post.system}</Link>
               <span className="hidden sm:inline">•</span>
               <span className="hidden sm:inline">Posted by u/{post.author}</span>
               <span className="whitespace-nowrap">{timeAgo}</span>
