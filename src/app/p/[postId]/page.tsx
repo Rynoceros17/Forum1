@@ -93,7 +93,7 @@ export default function PostPage({ params }: { params: { postId: string } }) {
                         <p className="text-base text-foreground/90 whitespace-pre-wrap">{post.content}</p>
                     </CardContent>
                     <CardFooter className="gap-2 sm:gap-4 pb-4">
-                        <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary">
+                        <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-black">
                             <MessageSquare className="mr-2 h-4 w-4" />
                             {post.commentCount || 0} Comments
                         </Button>

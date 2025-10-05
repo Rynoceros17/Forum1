@@ -62,7 +62,7 @@ export function PostItem({ post }: { post: Post }) {
       </div>
        <CardFooter className="gap-2 sm:gap-4 pb-4 bg-black/10 pt-4">
             <Link href={`/p/${post.id}#comments`}>
-              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary">
+              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-black">
                 <MessageSquare className="mr-2 h-4 w-4" />
                 {post.commentCount || 0} Comments
               </Button>
