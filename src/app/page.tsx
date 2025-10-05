@@ -116,7 +116,7 @@ export default function Home() {
                 return (
                   <div key={system}>
                     <div className="flex items-center gap-2 mb-4">
-                      <h3 className="text-2xl font-bold font-headline text-primary">{system}</h3>
+                      <h3 className={cn("text-2xl font-bold font-headline", system === 'NASA News' ? 'text-amber-400' : 'text-primary')}>{system}</h3>
                       <Button
                         variant="ghost"
                         size="icon"

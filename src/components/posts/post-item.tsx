@@ -10,6 +10,7 @@ import type { Post } from "@/app/lib/types";
 import { formatDistanceToNow } from 'date-fns';
 import { Skeleton } from "../ui/skeleton";
 import { systems } from "@/app/lib/mock-data";
+import { cn } from "@/lib/utils";
 
 export function PostItem({ post }: { post: Post }) {
 
@@ -19,7 +20,10 @@ export function PostItem({ post }: { post: Post }) {
 
 
   return (
-    <Card className="overflow-hidden border-border/60 bg-card/80 backdrop-blur-sm transition-all duration-300 ease-in-out hover:border-primary/40 hover:shadow-xl hover:shadow-primary/10">
+    <Card className={cn(
+        "overflow-hidden border-border/60 bg-card/80 backdrop-blur-sm transition-all duration-300 ease-in-out hover:border-primary/40 hover:shadow-xl hover:shadow-primary/10",
+        post.system === 'NASA News' && 'border-amber-400/50 hover:border-amber-400/80 hover:shadow-amber-400/10'
+      )}>
       <div className="flex">
         <div className="p-2 sm:p-4 bg-black/30 flex flex-col items-center justify-start gap-1">
           <VoteButtons postId={post.id} initialThrust={post.thrust} />
@@ -33,7 +37,10 @@ export function PostItem({ post }: { post: Post }) {
               </Avatar>
               <Link 
                 href={`/s/${systemSlug}`} 
-                className="font-bold text-foreground hover:underline hover:text-primary z-10 relative"
+                className={cn(
+                    "font-bold text-foreground hover:underline hover:text-primary z-10 relative",
+                    post.system === 'NASA News' && 'hover:text-amber-400'
+                )}
                 onClick={(e) => e.stopPropagation()}
               >
                 s/{post.system}
