@@ -15,11 +15,11 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur-sm">
-      <div className="container flex h-14 max-w-screen-2xl items-center">
+      <div className="container flex h-16 max-w-screen-2xl items-center">
         <div className="mr-4 flex items-center">
           <Link href="/" className="flex items-center gap-2 mr-6 group">
             <div className="p-1.5 bg-primary/10 rounded-lg group-hover:animate-pulse">
-                <Image src="/favicon.ico" alt="NOVASEEKRS Logo" width={24} height={24} />
+                <Image src="/favicon.ico" alt="NOVASEEKRS Logo" width={36} height={36} />
             </div>
             <span className="font-bold font-headline text-lg bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
               NOVASEEKRS
