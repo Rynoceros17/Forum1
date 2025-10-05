@@ -31,13 +31,14 @@ export default function Home() {
 
   const { data: posts, isLoading } = useCollection<Post>(postsQuery);
 
-  const postsBySystem = posts?.reduce((acc, post) => {
+  const postsBySystem = useMemo(() => posts?.reduce((acc, post) => {
+    if (!post.system) return acc; // Guard against posts without a system
     if (!acc[post.system]) {
       acc[post.system] = [];
     }
     acc[post.system].push(post);
     return acc;
-  }, {} as Record<string, Post[]>) || {};
+  }, {} as Record<string, Post[]>) || {}, [posts]);
 
   const systemOrder = useMemo(() => {
     if (!posts) return [];
@@ -59,7 +60,11 @@ export default function Home() {
   useEffect(() => {
     if (posts && !systemsInitialized) {
       const allSystems = Object.keys(postsBySystem);
-      const initialHidden = new Set<string>(); // Start with all systems visible
+      // Start with all systems hidden, then make "Space Talk" visible.
+      const initialHidden = new Set<string>(allSystems);
+      if (initialHidden.has("Space Talk")) {
+        initialHidden.delete("Space Talk");
+      }
       setHiddenSystems(initialHidden);
       
       const initialCounts: Record<string, number> = {};
