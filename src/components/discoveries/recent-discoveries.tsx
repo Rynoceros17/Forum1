@@ -6,10 +6,11 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { recentDiscoveries } from "@/app/lib/exoplanets";
 import Image from "next/image";
 import { Users } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export function RecentDiscoveries() {
   return (
-    <Card className="border-border/60 bg-card/80 backdrop-blur-sm">
+    <Card className="border-amber-400/50 bg-card/80 backdrop-blur-sm">
       <CardHeader>
         <CardTitle className="font-headline text-xl">Recent Exoplanet Discoveries</CardTitle>
       </CardHeader>
@@ -19,6 +20,14 @@ export function RecentDiscoveries() {
             {recentDiscoveries.map((planet) => (
               <CarouselItem key={planet.id} className="md:basis-1/2 lg:basis-1/3">
                 <div className="group relative overflow-hidden rounded-lg">
+                  {planet.banner && (
+                     <div className={cn(
+                        "absolute top-0 left-0 z-10 px-3 py-1 text-xs font-bold text-white uppercase tracking-wider",
+                        planet.banner.color
+                      )}>
+                       {planet.banner.text}
+                     </div>
+                  )}
                   <Image
                     src={planet.imageUrl}
                     alt={planet.name}

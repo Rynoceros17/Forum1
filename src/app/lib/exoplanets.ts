@@ -7,6 +7,10 @@ export type Exoplanet = {
   discoveredBy: string;
   imageUrl: string;
   imageHint: string;
+  banner?: {
+    text: string;
+    color: string;
+  };
 };
 
 export const recentDiscoveries: Exoplanet[] = [
@@ -15,7 +19,11 @@ export const recentDiscoveries: Exoplanet[] = [
     name: "Kepler-186g",
     discoveredBy: "StarGazer88",
     imageUrl: PlaceHolderImages.find(p => p.id === 'avatar1')?.imageUrl || '',
-    imageHint: "exoplanet"
+    imageHint: "exoplanet",
+    banner: {
+      text: "Most Recent",
+      color: "bg-primary"
+    }
   },
   {
     id: "2",
@@ -29,7 +37,11 @@ export const recentDiscoveries: Exoplanet[] = [
     name: "Proxima Centauri b",
     discoveredBy: "GalaxyMapper",
     imageUrl: PlaceHolderImages.find(p => p.id === 'avatar3')?.imageUrl || '',
-    imageHint: "star system"
+    imageHint: "star system",
+    banner: {
+      text: "Biggest Find",
+      color: "bg-amber-500"
+    }
   },
     {
     id: "4",
