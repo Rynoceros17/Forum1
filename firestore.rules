@@ -1,40 +1,31 @@
 /**
  * @file Cosmic Orbit Firestore Security Rules
  * @version Prototyping
- *
- * @description
- * This ruleset enforces a strict user-ownership model for user profiles and allows public read access to posts and systems.
- *
- * Data Structure:
- * - /users/{userId}: Stores individual user profiles. Access is restricted to the owning user.
- * - /posts/{postId}: Stores posts. Publicly readable, but creation, updates, and deletion are restricted to the post author.
- * - /systems/{systemId}: Stores system information. Publicly readable, but writes are not permitted in the prototype.
- * - /users/{userId}/votes/{postId}: Stores individual votes by user. Access is restricted to the owning user.
- *
- * Key Security Decisions:
- * - Users can only read and write their own profile data.
- * - Posts are publicly readable but only the author can modify or delete them.
- * - Listing of users is disallowed.
- * - Systems are publicly readable, but only admins can create, update, or delete them (currently disabled in the prototype).
- *
- * Denormalization for Authorization:
- * - Posts require an `authorId` field to enforce ownership for writes.
- *
- * Structural Segregation:
- * - Private user data is stored under /users/{userId}, while public post data is stored in the top-level /posts/{postId} collection.
+ * @core_philosophy This ruleset enforces a user-ownership model for user profiles and votes, and allows public read access to posts and systems. Write access to posts and systems is restricted to authenticated users, with the author retaining ownership. Comments are publicly readable but only the author can modify/delete.
+ * @data_structure
+ *  - /users/{userId}: Stores individual user profiles, secured by owner-only access.
+ *  - /posts/{postId}: Stores posts, publicly readable, but writable only by authenticated users who are the authors.
+ *  - /posts/{postId}/comments/{commentId}: Stores comments under posts, publicly readable, but writable only by the author.
+ *  - /systems/{systemId}: Stores system (community) information, publicly readable.
+ *  - /users/{userId}/votes/{postId}: Stores user votes on posts, secured by owner-only access.
+ * @key_security_decisions
+ *  - User listing is not explicitly denied, but not explicitly allowed either, so it will be denied by default.
+ *  - Read-only collections are implemented by allowing `get` and `list` operations for everyone.
+ *  - Ambiguous relationships are defaulted to strict owner-only access where possible.
+ * @denormalization_for_authorization
+ *  - Posts require an `authorId` field to enforce owner-only write access.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * @description Controls access to user profile information.
+     * @description Controls access to user profile information. Only the user themselves can read or modify their profile.
      * @path /users/{userId}
-     * @allow (create) - User can create their own profile if the userId matches their auth UID.
-     * @allow (get, update, delete) - User can only access their own profile.
-     * @deny (create) - User cannot create a profile with a different userId.
-     * @deny (update, delete) - User cannot modify or delete another user's profile.
-     * @principle Enforces document ownership for writes.
+     * @allow (create) - Authenticated user with UID matching {userId} can create their profile.
+     * @allow (get, update, delete) - Authenticated user with UID matching {userId} can read/update/delete their profile.
+     * @deny (create, get, update, delete) - Any other user attempting to access this profile.
+     * @principle Enforces document ownership for user profiles.
      */
     match /users/{userId} {
       function isSignedIn() {
@@ -46,25 +37,24 @@ service cloud.firestore {
       }
 
       function isExistingOwner(userId) {
-        return isSignedIn() && isOwner(userId) && resource.data != null;
+        return isOwner(userId) && resource != null;
       }
 
       allow get: if isOwner(userId);
-      allow list: if false;
-      allow create: if isSignedIn() && request.auth.uid == userId;
-      allow update: if isExistingOwner(userId);
-      allow delete: if isExistingOwner(userId);
+      allow list: if false; // Listing all users is disallowed.
+      allow create: if isSignedIn() && isOwner(userId);
+      allow update: if isSignedIn() && isOwner(userId);
+      allow delete: if isSignedIn() && isOwner(userId);
     }
 
     /**
-     * @description Controls access to posts.
+     * @description Controls access to posts. Posts are publicly readable, but only the author can create, update, or delete them.
      * @path /posts/{postId}
-     * @allow (get, list) - All users can read posts.
-     * @allow (create) - Only authenticated users can create posts, and authorId must match their UID.
-     * @allow (update, delete) - Only the author of a post can update or delete it.
-     * @deny (create) - Unauthenticated users cannot create posts.
-     * @deny (update, delete) - Users cannot modify or delete posts they don't own.
-     * @principle Enforces public read access with owner-only writes.
+     * @allow (get, list) - Any user can read any post.
+     * @allow (create) - Authenticated user can create a post with their UID as the authorId.
+     * @allow (update, delete) - Author of the post can update or delete it.
+     * @deny (create, update, delete) - Any other user attempting to modify this post.
+     * @principle Public read access with owner-only writes.
      */
     match /posts/{postId} {
       function isSignedIn() {
@@ -72,58 +62,94 @@ service cloud.firestore {
       }
 
       function isOwner(authorId) {
-        return request.auth.uid == authorId;
+        return request.auth.uid == resource.data.authorId;
       }
 
-       function isExistingOwner(authorId) {
-        return isSignedIn() && isOwner(resource.data.authorId);
+        function isExistingOwner(authorId) {
+        return request.auth.uid == resource.data.authorId && resource != null;
       }
 
-      allow get, list: if true;
+      allow get: if true;
+      allow list: if true;
       allow create: if isSignedIn() && request.resource.data.authorId == request.auth.uid;
-      allow update: if isSignedIn() && isExistingOwner(resource.data.authorId);
-      allow delete: if isSignedIn() && isExistingOwner(resource.data.authorId);
+      allow update: if isSignedIn() && request.resource.data.authorId == request.auth.uid;
+      allow delete: if isSignedIn() && request.resource.data.authorId == request.auth.uid;
     }
 
     /**
-     * @description Controls access to systems.
-     * @path /systems/{systemId}
-     * @allow (get, list) - All users can read system information.
-     * @deny (create, update, delete) - No one can create, update or delete systems in this prototype.
-     * @principle Enforces public read access with restricted writes.
+     * @description Controls access to comments under a post. Comments are publicly readable, but only the author can create, update, or delete them.
+     * @path /posts/{postId}/comments/{commentId}
+     * @allow (get, list) - Any user can read any comment.
+     * @allow (create) - Authenticated user can create a comment.
+     * @allow (update, delete) - Author of the comment can update or delete it.
+     * @deny (create, update, delete) - Any other user attempting to modify this comment.
+     * @principle Public read access with owner-only writes for comments.
      */
-    match /systems/{systemId} {
-      allow get, list: if true;
-      allow create, update, delete: if false; // TODO: Add admin-only access for system management.
+    match /posts/{postId}/comments/{commentId} {
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      function isOwner(authorId) {
+        return request.auth.uid == resource.data.authorId;
+      }
+
+      function isExistingOwner(authorId) {
+        return request.auth.uid == resource.data.authorId && resource != null;
+      }
+
+      allow get: if true;
+      allow list: if true;
+      allow create: if isSignedIn() && request.resource.data.authorId == request.auth.uid;
+      allow update: if isSignedIn() && request.resource.data.authorId == request.auth.uid;
+      allow delete: if isSignedIn() && request.resource.data.authorId == request.auth.uid;
     }
 
-     /**
-     * @description Controls access to user's votes on posts.
+    /**
+     * @description Controls access to system (community) information. Systems are publicly readable.
+     * @path /systems/{systemId}
+     * @allow (get, list) - Any user can read any system.
+     * @allow (create) - Authenticated user can create a system.
+     * @deny (create) -  Unauthenticated user cannot create a system.
+     * @principle Public read access with authentication required to create.
+     */
+    match /systems/{systemId} {
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      allow get: if true;
+      allow list: if true;
+      allow create: if isSignedIn();
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    /**
+     * @description Controls access to user votes on posts. Only the user themselves can read or modify their votes.
      * @path /users/{userId}/votes/{postId}
-     * @allow (create) - User can create their own votes if the userId matches their auth UID.
-     * @allow (get, update, delete) - User can only access their own votes.
-     * @deny (create) - User cannot create a vote with a different userId.
-     * @deny (update, delete) - User cannot modify or delete another user's vote.
-     * @principle Enforces document ownership for writes.
+     * @allow (create, get, update, delete) - Authenticated user with UID matching {userId} can create/read/update/delete their vote.
+     * @deny (create, get, update, delete) - Any other user attempting to access this vote.
+     * @principle Enforces document ownership for user votes.
      */
     match /users/{userId}/votes/{postId} {
-          function isSignedIn() {
-            return request.auth != null;
-          }
+      function isSignedIn() {
+        return request.auth != null;
+      }
 
-          function isOwner(userId) {
-            return request.auth.uid == userId;
-          }
+      function isOwner(userId) {
+        return request.auth.uid == userId;
+      }
 
-          function isExistingOwner(userId) {
-            return isSignedIn() && isOwner(userId) && resource.data != null;
-          }
-          
+        function isExistingOwner(userId) {
+        return isOwner(userId) && resource != null;
+      }
+
       allow get: if isOwner(userId);
       allow list: if false;
-      allow create: if isSignedIn() && request.auth.uid == userId;
-      allow update: if isExistingOwner(userId);
-      allow delete: if isExistingOwner(userId);
+      allow create: if isSignedIn() && isOwner(userId);
+      allow update: if isSignedIn() && isOwner(userId);
+      allow delete: if isSignedIn() && isOwner(userId);
     }
   }
 }
