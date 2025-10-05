@@ -8,6 +8,7 @@ import { Header } from '@/components/layout/header';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Link from 'next/link';
+import Image from 'next/image';
 import { formatDistanceToNow } from 'date-fns';
 import { VoteButtons } from '@/components/posts/vote-buttons';
 import { Button } from '@/components/ui/button';
@@ -78,6 +79,17 @@ export default function PostPage({ params }: { params: { postId: string } }) {
                         <CardTitle className="text-xl md:text-2xl font-headline mt-2">{post.title}</CardTitle>
                     </CardHeader>
                     <CardContent className="pr-4 sm:pr-6">
+                        {post.imageUrl && (
+                          <div className="mt-2 mb-4 max-h-[500px] overflow-hidden rounded-md border border-border/20">
+                            <Image 
+                              src={post.imageUrl} 
+                              alt={post.title} 
+                              width={800}
+                              height={500}
+                              className="w-full object-contain"
+                            />
+                          </div>
+                        )}
                         <p className="text-base text-foreground/90 whitespace-pre-wrap">{post.content}</p>
                     </CardContent>
                     <CardFooter className="gap-2 sm:gap-4 pb-4">

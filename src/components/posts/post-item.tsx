@@ -1,6 +1,7 @@
 'use client';
 import { MessageSquare, Share2 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -44,6 +45,17 @@ export function PostItem({ post }: { post: Post }) {
             <CardTitle className="text-lg font-headline mt-2">{post.title}</CardTitle>
           </CardHeader>
           <CardContent className="pr-4 sm:pr-6">
+             {post.imageUrl && (
+              <div className="mt-2 mb-4 max-h-96 overflow-hidden rounded-md border border-border/20">
+                <Image 
+                  src={post.imageUrl} 
+                  alt={post.title} 
+                  width={600}
+                  height={400}
+                  className="w-full object-contain"
+                />
+              </div>
+            )}
             <p className="text-sm text-foreground/80 line-clamp-4">{post.content}</p>
           </CardContent>
         </Link>

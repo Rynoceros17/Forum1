@@ -9,6 +9,7 @@ export type Post = {
   createdAt?: Timestamp; // For Firestore data
   title: string;
   content: string;
+  imageUrl?: string;
   thrust: number;
   commentCount: number;
 };

@@ -1,0 +1,200 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user account in the Cosmic Orbit application. User authentication will be handled by Firebase.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user. (Primary Key)"
+        },
+        "username": {
+          "type": "string",
+          "description": "The user's chosen username, unique within the application.",
+          "format": "string"
+        },
+        "email": {
+          "type": "string",
+          "description": "The user's email address, used for communication and account recovery.",
+          "format": "email"
+        },
+        "avatar": {
+          "type": "string",
+          "description": "URL of the user's avatar image.",
+          "format": "uri"
+        },
+        "bio": {
+          "type": "string",
+          "description": "A short biography or 'about me' section for the user's profile."
+        },
+        "karma": {
+          "type": "number",
+          "description": "The user's accumulated karma points, reflecting their contributions to the community."
+        },
+        "joinedSystems": {
+          "type": "array",
+          "description": "References to the Systems (communities) the user has joined. (Relationship: User 1:N SystemMembership)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp when the user account was created."
+        }
+      },
+      "required": [
+        "id",
+        "username",
+        "email"
+      ]
+    },
+    "Post": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Post",
+      "type": "object",
+      "description": "A post made by a user within a system.",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        },
+        "imageUrl": {
+            "type": "string",
+            "format": "uri"
+        },
+        "authorId": {
+          "type": "string"
+        },
+        "author": {
+          "type": "string"
+        },
+        "avatar": {
+          "type": "string",
+          "format": "uri"
+        },
+        "system": {
+          "type": "string"
+        },
+        "thrust": {
+          "type": "number"
+        },
+        "commentCount": {
+          "type": "number"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "title",
+        "content",
+        "authorId",
+        "author",
+        "system",
+        "createdAt"
+      ]
+    },
+    "System": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "System",
+      "type": "object",
+      "description": "A community or forum, called a System.",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "members": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "Comment": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Comment",
+      "type": "object",
+      "description": "A comment made by a user on a post.",
+      "properties": {
+        "content": {
+          "type": "string"
+        },
+        "authorId": {
+          "type": "string"
+        },
+        "author": {
+          "type": "string"
+        },
+        "avatar": {
+          "type": "string",
+          "format": "uri"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "content",
+        "authorId",
+        "author",
+        "createdAt"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": {
+        "$ref": "#/entities/User"
+      },
+      "description": "Stores user profile information. The `userId` parameter corresponds to the Firebase Auth UID."
+    },
+    "/posts/{postId}": {
+      "schema": {
+        "$ref": "#/entities/Post"
+      },
+      "description": "Stores all posts across all systems."
+    },
+    "/posts/{postId}/comments/{commentId}": {
+      "schema": {
+        "$ref": "#/entities/Comment"
+      },
+      "description": "Stores comments for a specific post."
+    },
+    "/systems/{systemId}": {
+      "schema": {
+        "$ref": "#/entities/System"
+      },
+      "description": "Stores information about each community system."
+    },
+    "/users/{userId}/votes/{postId}": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "vote": {
+            "type": "string",
+            "enum": [
+              "up",
+              "down"
+            ]
+          }
+        }
+      },
+      "description": "Stores a user's vote on a specific post."
+    }
+  }
+}

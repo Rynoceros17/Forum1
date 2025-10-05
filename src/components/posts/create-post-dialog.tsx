@@ -23,13 +23,13 @@ export function CreatePostDialog() {
   const triggerButton = (
     <Button>
       <PlusCircle className="mr-2 h-4 w-4" />
-      Launchpad
+      Post
     </Button>
   );
 
   if (!user) {
     // For guests, wrap the trigger button with AuthDialog.
-    // Clicking "Launchpad" will open the sign-in/sign-up modal.
+    // Clicking "Post" will open the sign-in/sign-up modal.
     return <AuthDialog>{triggerButton}</AuthDialog>;
   }
 
