@@ -1,3 +1,4 @@
+
 'use client';
 import { Header } from "@/components/layout/header";
 import { PostItem } from "@/components/posts/post-item";
@@ -6,7 +7,7 @@ import { collection, orderBy, query, limit } from "firebase/firestore";
 import type { Post } from "@/app/lib/types";
 import { useMemoFirebase } from "@/firebase/provider";
 import { RecentDiscoveries } from "@/components/discoveries/recent-discoveries";
-import { useState, useEffect }from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Flame, Star, Zap, ChevronDown, ChevronUp } from "lucide-react";
@@ -17,29 +18,16 @@ const INITIAL_POST_COUNT = 5;
 
 export default function Home() {
   const firestore = useFirestore();
-  const [filter, setFilter] = useState<FilterOption>('new');
+  const [filtersBySystem, setFiltersBySystem] = useState<Record<string, FilterOption>>({});
   const [hiddenSystems, setHiddenSystems] = useState<Set<string>>(new Set());
   const [systemsInitialized, setSystemsInitialized] = useState(false);
   const [visiblePostCounts, setVisiblePostCounts] = useState<Record<string, number>>({});
 
   const postsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
-    
-    let q = query(collection(firestore, 'posts'));
-
-    switch (filter) {
-      case 'hot':
-      case 'top':
-        q = query(q, orderBy('thrust', 'desc'));
-        break;
-      case 'new':
-      default:
-        q = query(q, orderBy('createdAt', 'desc'));
-        break;
-    }
-
-    return query(q, limit(50));
-  }, [firestore, filter]);
+    // Fetch all recent posts, sort by creation date initially. The per-system sorting will be handled on the client.
+    return query(collection(firestore, 'posts'), orderBy('createdAt', 'desc'), limit(100));
+  }, [firestore]);
 
   const { data: posts, isLoading } = useCollection<Post>(postsQuery);
 
@@ -51,17 +39,37 @@ export default function Home() {
     return acc;
   }, {} as Record<string, Post[]>) || {};
 
+  const systemOrder = useMemo(() => {
+    if (!posts) return [];
+    // Establish a stable order of systems based on the most recent post in each system.
+    const systemWithLatestPost = Object.entries(postsBySystem).map(([system, posts]) => {
+      const latestPost = posts.reduce((latest, current) => 
+        (current.createdAt && latest.createdAt && current.createdAt.toMillis() > latest.createdAt.toMillis()) ? current : latest, 
+        posts[0]
+      );
+      return { system, latestTimestamp: latestPost.createdAt };
+    });
+    
+    systemWithLatestPost.sort((a, b) => (b.latestTimestamp?.toMillis() || 0) - (a.latestTimestamp?.toMillis() || 0));
+
+    return systemWithLatestPost.map(s => s.system);
+  }, [posts, postsBySystem]);
+
+
   useEffect(() => {
     if (posts && !systemsInitialized) {
       const allSystems = Object.keys(postsBySystem);
-      const initialHidden = new Set(allSystems.filter(system => system !== 'Space Talk'));
+      const initialHidden = new Set<string>(); // Start with all systems visible
       setHiddenSystems(initialHidden);
       
       const initialCounts: Record<string, number> = {};
+      const initialFilters: Record<string, FilterOption> = {};
       allSystems.forEach(system => {
         initialCounts[system] = INITIAL_POST_COUNT;
+        initialFilters[system] = 'new'; // Default filter for each system
       });
       setVisiblePostCounts(initialCounts);
+      setFiltersBySystem(initialFilters);
       
       setSystemsInitialized(true);
     }
@@ -92,6 +100,13 @@ export default function Home() {
     }));
   };
 
+  const handleSetFilter = (systemName: string, filter: FilterOption) => {
+    setFiltersBySystem(prev => ({
+      ...prev,
+      [systemName]: filter,
+    }));
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Header />
@@ -111,10 +126,26 @@ export default function Home() {
                   <p>It's quiet in this corner of the galaxy...</p>
                 </div>
               )}
-              {!isLoading && Object.entries(postsBySystem).map(([system, systemPosts]) => {
+              {!isLoading && systemOrder.map((system) => {
+                const systemPosts = postsBySystem[system];
+                if (!systemPosts) return null;
+
+                const currentFilter = filtersBySystem[system] || 'new';
+
+                const sortedSystemPosts = [...systemPosts].sort((a, b) => {
+                    switch (currentFilter) {
+                        case 'hot':
+                        case 'top':
+                            return (b.thrust || 0) - (a.thrust || 0);
+                        case 'new':
+                        default:
+                            return (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0);
+                    }
+                });
+
                 const isHidden = hiddenSystems.has(system);
                 const visibleCount = visiblePostCounts[system] || INITIAL_POST_COUNT;
-                const hasMore = systemPosts.length > visibleCount;
+                const hasMore = sortedSystemPosts.length > visibleCount;
 
                 return (
                   <div key={system} className={cn(
@@ -141,12 +172,12 @@ export default function Home() {
                         {filterButtons.map(({id, label, icon: Icon}) => (
                           <Button 
                             key={id} 
-                            variant={filter === id ? 'default' : 'ghost'} 
+                            variant={currentFilter === id ? 'default' : 'ghost'} 
                             size="sm"
-                            onClick={() => setFilter(id)}
+                            onClick={() => handleSetFilter(system, id)}
                             className={cn(
                               "flex-1 justify-center sm:justify-start px-4 py-1.5 h-auto transition-all duration-200",
-                              filter === id && 'shadow-md bg-primary/90 hover:bg-primary'
+                              currentFilter === id && 'shadow-md bg-primary/90 hover:bg-primary'
                             )}
                           >
                             <Icon className="h-4 w-4 mr-2" />
@@ -157,7 +188,7 @@ export default function Home() {
                     </div>
                     {!isHidden && (
                       <div className="space-y-4">
-                        {systemPosts.slice(0, visibleCount).map((post) => (
+                        {sortedSystemPosts.slice(0, visibleCount).map((post) => (
                           <PostItem key={post.id} post={post} />
                         ))}
                         {hasMore && (
