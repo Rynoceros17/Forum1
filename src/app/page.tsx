@@ -34,7 +34,7 @@ export default function Home() {
         <RecentDiscoveries />
         
         <div className="mt-8">
-            <h2 className="text-2xl font-headline mb-4">Recent Transmissions</h2>
+            <h2 className="text-3xl font-bold font-headline mb-4">Exoplanets Forum</h2>
             <div className="space-y-8">
               {isLoading && Array.from({ length: 3 }).map((_, i) => <PostItem.Skeleton key={i} />)}
               {!isLoading && Object.entries(postsBySystem).map(([system, systemPosts]) => (
