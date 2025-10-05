@@ -9,13 +9,14 @@ import { RecentDiscoveries } from "@/components/discoveries/recent-discoveries";
 import { useState }from 'react';
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Flame, Star, Zap } from "lucide-react";
+import { Flame, Star, Zap, ChevronDown, ChevronUp } from "lucide-react";
 
 type FilterOption = 'new' | 'hot' | 'top';
 
 export default function Home() {
   const firestore = useFirestore();
   const [filter, setFilter] = useState<FilterOption>('new');
+  const [hiddenSystems, setHiddenSystems] = useState<Set<string>>(new Set());
 
   const postsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -51,6 +52,18 @@ export default function Home() {
     { id: 'hot', label: 'Hot', icon: Flame },
     { id: 'top', label: 'Top', icon: Star },
   ];
+
+  const toggleSystemVisibility = (systemName: string) => {
+    setHiddenSystems(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(systemName)) {
+        newSet.delete(systemName);
+      } else {
+        newSet.add(systemName);
+      }
+      return newSet;
+    });
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -88,16 +101,32 @@ export default function Home() {
                   <p>It's quiet in this corner of the galaxy...</p>
                 </div>
               )}
-              {!isLoading && Object.entries(postsBySystem).map(([system, systemPosts]) => (
-                <div key={system}>
-                  <h3 className="text-xl font-headline mb-4">s/{system}</h3>
-                  <div className="space-y-4">
-                    {systemPosts.map((post) => (
-                      <PostItem key={post.id} post={post} />
-                    ))}
+              {!isLoading && Object.entries(postsBySystem).map(([system, systemPosts]) => {
+                const isHidden = hiddenSystems.has(system);
+                return (
+                  <div key={system}>
+                    <div className="flex items-center gap-2 mb-4">
+                      <h3 className="text-xl font-headline">s/{system}</h3>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => toggleSystemVisibility(system)}
+                        className="h-7 w-7 text-muted-foreground"
+                        aria-label={isHidden ? `Show posts from s/${system}` : `Hide posts from s/${system}`}
+                      >
+                        {isHidden ? <ChevronDown className="h-5 w-5" /> : <ChevronUp className="h-5 w-5" />}
+                      </Button>
+                    </div>
+                    {!isHidden && (
+                      <div className="space-y-4">
+                        {systemPosts.map((post) => (
+                          <PostItem key={post.id} post={post} />
+                        ))}
+                      </div>
+                    )}
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
         </div>
       </main>
