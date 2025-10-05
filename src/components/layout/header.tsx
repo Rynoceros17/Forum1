@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, Rocket } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { CreatePostDialog } from "../posts/create-post-dialog";
 import { UserNav } from "../auth/user-nav";
@@ -8,6 +8,7 @@ import { useUser } from "@/firebase";
 import { AuthDialog } from "../auth/auth-dialog";
 import { Skeleton } from "../ui/skeleton";
 import { Button } from "../ui/button";
+import Image from "next/image";
 
 export function Header() {
   const { user, isUserLoading } = useUser();
@@ -17,8 +18,8 @@ export function Header() {
       <div className="container flex h-14 max-w-screen-2xl items-center">
         <div className="mr-4 flex items-center">
           <Link href="/" className="flex items-center gap-2 mr-6 group">
-            <div className="p-1.5 bg-primary/10 rounded-lg">
-                <Rocket className="h-6 w-6 text-primary group-hover:animate-pulse" />
+            <div className="p-1.5 bg-primary/10 rounded-lg group-hover:animate-pulse">
+                <Image src="/favicon.ico" alt="NOVASEEKRS Logo" width={24} height={24} />
             </div>
             <span className="font-bold font-headline text-lg bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
               NOVASEEKRS
