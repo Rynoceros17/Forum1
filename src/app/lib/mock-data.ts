@@ -26,7 +26,7 @@ export const posts: Post[] = [
   },
     {
     id: "3",
-    system: "Updates/Feedback",
+    system: "NASA News",
     author: "GalaxyMapper",
     avatar: PlaceHolderImages.find(p => p.id === 'avatar3')?.imageUrl || '',
     time: "1 day ago",
@@ -47,5 +47,5 @@ export type System = {
 export const systems: System[] = [
   { name: "Space Talk", slug: "spacetalk", description: "General discussions about the cosmos, from astrophysics to science fiction.", members: "1.2M" },
   { name: "Exoplanet Announcements", slug: "exoplanet-announcements", description: "The latest official discoveries and data from the frontiers of space.", members: "876k" },
-  { name: "Updates/Feedback", slug: "updates-feedback", description: "Discuss the Cosmic Orbit platform itself and provide feedback.", members: "53k" },
+  { name: "NASA News", slug: "nasa-news", description: "The latest news and announcements directly from NASA.", members: "53k" },
 ];

@@ -2,13 +2,13 @@
 
 import { systems } from '@/app/lib/mock-data';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Rocket, MessageCircle, Megaphone, FlaskConical } from 'lucide-react';
+import { Rocket, MessageCircle, Megaphone, Newspaper } from 'lucide-react';
 import Link from 'next/link';
 
 const iconMap: Record<string, React.ElementType> = {
     'spacetalk': MessageCircle,
     'exoplanet-announcements': Megaphone,
-    'updates-feedback': FlaskConical
+    'nasa-news': Newspaper
 }
 
 export function SystemNavigation() {
