@@ -7,7 +7,6 @@ import { collection, orderBy, query } from "firebase/firestore";
 import type { Post } from "@/app/lib/types";
 import { useMemoFirebase } from "@/firebase/provider";
 import { RecentDiscoveries } from "@/components/discoveries/recent-discoveries";
-import { SystemNavigation } from "@/components/layout/system-navigation";
 
 export default function Home() {
   const firestore = useFirestore();
@@ -33,7 +32,6 @@ export default function Home() {
       <Header />
       <main className="container mx-auto px-4 py-8">
         <RecentDiscoveries />
-        <SystemNavigation />
         
         <div className="mt-8">
             <h2 className="text-2xl font-headline mb-4">Recent Transmissions</h2>
