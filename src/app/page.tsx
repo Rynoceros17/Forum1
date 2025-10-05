@@ -13,11 +13,14 @@ import { Flame, Star, Zap, ChevronDown, ChevronUp } from "lucide-react";
 
 type FilterOption = 'new' | 'hot' | 'top';
 
+const INITIAL_POST_COUNT = 5;
+
 export default function Home() {
   const firestore = useFirestore();
   const [filter, setFilter] = useState<FilterOption>('new');
   const [hiddenSystems, setHiddenSystems] = useState<Set<string>>(new Set());
   const [systemsInitialized, setSystemsInitialized] = useState(false);
+  const [visiblePostCounts, setVisiblePostCounts] = useState<Record<string, number>>({});
 
   const postsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -53,6 +56,13 @@ export default function Home() {
       const allSystems = Object.keys(postsBySystem);
       const initialHidden = new Set(allSystems.filter(system => system !== 'Space Talk'));
       setHiddenSystems(initialHidden);
+      
+      const initialCounts: Record<string, number> = {};
+      allSystems.forEach(system => {
+        initialCounts[system] = INITIAL_POST_COUNT;
+      });
+      setVisiblePostCounts(initialCounts);
+      
       setSystemsInitialized(true);
     }
   }, [posts, postsBySystem, systemsInitialized]);
@@ -73,6 +83,13 @@ export default function Home() {
       }
       return newSet;
     });
+  };
+
+  const showMorePosts = (systemName: string) => {
+    setVisiblePostCounts(prev => ({
+      ...prev,
+      [systemName]: (prev[systemName] || INITIAL_POST_COUNT) + 5
+    }));
   };
 
   return (
@@ -113,6 +130,9 @@ export default function Home() {
               )}
               {!isLoading && Object.entries(postsBySystem).map(([system, systemPosts]) => {
                 const isHidden = hiddenSystems.has(system);
+                const visibleCount = visiblePostCounts[system] || INITIAL_POST_COUNT;
+                const hasMore = systemPosts.length > visibleCount;
+
                 return (
                   <div key={system} className={cn(
                       "p-4 rounded-lg bg-primary/5 border border-primary/20 transition-all",
@@ -135,9 +155,16 @@ export default function Home() {
                     </div>
                     {!isHidden && (
                       <div className="space-y-4">
-                        {systemPosts.map((post) => (
+                        {systemPosts.slice(0, visibleCount).map((post) => (
                           <PostItem key={post.id} post={post} />
                         ))}
+                        {hasMore && (
+                          <div className="flex justify-center pt-2">
+                            <Button variant="secondary" onClick={() => showMorePosts(system)}>
+                              Show More
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
