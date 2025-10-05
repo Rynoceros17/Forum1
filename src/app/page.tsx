@@ -6,7 +6,6 @@ import { useCollection, useFirestore } from "@/firebase";
 import { collection, orderBy, query, limit } from "firebase/firestore";
 import type { Post } from "@/app/lib/types";
 import { useMemoFirebase } from "@/firebase/provider";
-import { RecentDiscoveries } from "@/components/discoveries/recent-discoveries";
 import { useState, useEffect, useMemo } from 'react';
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -116,7 +115,6 @@ export default function Home() {
     <div className="min-h-screen bg-background text-foreground">
       <Header />
       <main className="container mx-auto px-4 py-8">
-        <RecentDiscoveries />
         
         <div className="mt-8">
             <div className="flex flex-col sm:flex-row justify-between items-baseline mb-4 gap-4">

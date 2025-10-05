@@ -111,11 +111,11 @@ export function CreatePostForm({ onCompletion }: { onCompletion: () => void }) {
           name="system"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="font-headline">Target System</FormLabel>
+              <FormLabel className="font-headline">Community</FormLabel>
                <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select a system to post in" />
+                    <SelectValue placeholder="Select a community to post in" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
@@ -135,7 +135,7 @@ export function CreatePostForm({ onCompletion }: { onCompletion: () => void }) {
           name="title"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="font-headline">Transmission Log Title</FormLabel>
+              <FormLabel className="font-headline">Title</FormLabel>
               <FormControl>
                 <Input
                   id="title"
