@@ -106,13 +106,13 @@ export default function Home() {
                 return (
                   <div key={system}>
                     <div className="flex items-center gap-2 mb-4">
-                      <h3 className="text-xl font-headline">s/{system}</h3>
+                      <h3 className="text-2xl font-bold font-headline text-primary">{system}</h3>
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => toggleSystemVisibility(system)}
                         className="h-7 w-7 text-muted-foreground"
-                        aria-label={isHidden ? `Show posts from s/${system}` : `Hide posts from s/${system}`}
+                        aria-label={isHidden ? `Show posts from ${system}` : `Hide posts from ${system}`}
                       >
                         {isHidden ? <ChevronDown className="h-5 w-5" /> : <ChevronUp className="h-5 w-5" />}
                       </Button>
