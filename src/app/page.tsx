@@ -113,41 +113,27 @@ export default function Home() {
               )}
               {!isLoading && Object.entries(postsBySystem).map(([system, systemPosts]) => {
                 const isHidden = hiddenSystems.has(system);
-                const systemContent = (
-                    <>
-                        <div className="flex items-center gap-2 mb-4">
-                        <h3 className={cn("text-2xl font-bold font-headline", system === 'NASA News' ? 'text-amber-400' : 'text-primary')}>{system}</h3>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => toggleSystemVisibility(system)}
-                            className="h-7 w-7 text-muted-foreground"
-                            aria-label={isHidden ? `Show posts from ${system}` : `Hide posts from ${system}`}
-                        >
-                            {isHidden ? <ChevronDown className="h-5 w-5" /> : <ChevronUp className="h-5 w-5" />}
-                        </Button>
-                        </div>
-                        {!isHidden && (
-                        <div className="space-y-4">
-                            {systemPosts.map((post) => (
-                            <PostItem key={post.id} post={post} />
-                            ))}
-                        </div>
-                        )}
-                    </>
-                );
-
-                if (system === 'Space Talk') {
-                    return (
-                        <div key={system} className="p-4 rounded-lg bg-primary/5 border border-primary/20">
-                           {systemContent}
-                        </div>
-                    )
-                }
-
                 return (
-                  <div key={system}>
-                    {systemContent}
+                  <div key={system} className="p-4 rounded-lg bg-primary/5 border border-primary/20">
+                    <div className="flex items-center gap-2 mb-4">
+                      <h3 className={cn("text-2xl font-bold font-headline", system === 'NASA News' ? 'text-amber-400' : 'text-primary')}>{system}</h3>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => toggleSystemVisibility(system)}
+                        className="h-7 w-7 text-muted-foreground"
+                        aria-label={isHidden ? `Show posts from ${system}` : `Hide posts from ${system}`}
+                      >
+                        {isHidden ? <ChevronDown className="h-5 w-5" /> : <ChevronUp className="h-5 w-5" />}
+                      </Button>
+                    </div>
+                    {!isHidden && (
+                      <div className="space-y-4">
+                        {systemPosts.map((post) => (
+                          <PostItem key={post.id} post={post} />
+                        ))}
+                      </div>
+                    )}
                   </div>
                 );
               })}
