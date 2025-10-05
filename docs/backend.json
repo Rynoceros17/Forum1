@@ -93,7 +93,8 @@
         "content",
         "authorId",
         "author",
-        "system"
+        "system",
+        "createdAt"
       ]
     },
     "System": {
@@ -140,7 +141,8 @@
       "required": [
         "content",
         "authorId",
-        "author"
+        "author",
+        "createdAt"
       ]
     }
   },
@@ -151,90 +153,44 @@
     ]
   },
   "firestore": {
-    "structure": [
-      {
-        "path": "/users/{userId}",
-        "definition": {
-          "entityName": "User",
-          "schema": {
-            "$ref": "#/entities/User"
-          },
-          "description": "Stores user profile information. Uses path-based ownership for data privacy. The 'userId' parameter corresponds to the Firebase Auth UID.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique ID of the user, matching their Firebase Auth UID."
-            }
-          ]
+    "/users/{userId}": {
+      "schema": {
+        "$ref": "#/entities/User"
+      },
+      "description": "Stores user profile information. The `userId` parameter corresponds to the Firebase Auth UID."
+    },
+    "/posts/{postId}": {
+      "schema": {
+        "$ref": "#/entities/Post"
+      },
+      "description": "Stores all posts across all systems."
+    },
+    "/posts/{postId}/comments/{commentId}": {
+      "schema": {
+        "$ref": "#/entities/Comment"
+      },
+      "description": "Stores comments for a specific post."
+    },
+    "/systems/{systemId}": {
+      "schema": {
+        "$ref": "#/entities/System"
+      },
+      "description": "Stores information about each community system."
+    },
+    "/users/{userId}/votes/{postId}": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "vote": {
+            "type": "string",
+            "enum": [
+              "up",
+              "down"
+            ]
+          }
         }
       },
-      {
-        "path": "/posts/{postId}",
-        "definition": {
-          "entityName": "Post",
-          "schema": {
-            "$ref": "#/entities/Post"
-          },
-          "description": "Stores all posts across all systems.",
-          "params": [
-            {
-              "name": "postId",
-              "description": "The unique ID of the post."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/posts/{postId}/comments/{commentId}",
-        "definition": {
-          "entityName": "Comment",
-          "schema": {
-            "$ref": "#/entities/Comment"
-          },
-          "description": "Stores comments for a specific post.",
-          "params": [
-            {
-              "name": "postId",
-              "description": "The ID of the post being commented on."
-            },
-            {
-              "name": "commentId",
-              "description": "The unique ID of the comment."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/systems/{systemId}",
-        "definition": {
-          "entityName": "System",
-          "schema": {
-            "$ref": "#/entities/System"
-          },
-          "description": "Stores information about each community system.",
-          "params": [
-            {
-              "name": "systemId",
-              "description": "The unique ID of the system."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/users/{userId}/votes/{postId}",
-        "definition": {
-          "schema": {
-            "type": "object",
-            "properties": {
-              "vote": {
-                "type": "string",
-                "enum": ["up", "down"]
-              }
-            }
-          },
-          "description": "Stores a user's vote on a specific post."
-        }
-      }
-    ]
+      "description": "Stores a user's vote on a specific post."
+    }
   }
 }
