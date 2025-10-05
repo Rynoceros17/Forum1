@@ -101,23 +101,6 @@ export default function Home() {
         <div className="mt-8">
             <div className="flex flex-col sm:flex-row justify-between items-baseline mb-4 gap-4">
               <h2 className="text-3xl font-bold font-headline">Exoplanets Forum</h2>
-              <div className="flex items-center gap-2 rounded-lg bg-card/80 border p-1">
-                {filterButtons.map(({id, label, icon: Icon}) => (
-                  <Button 
-                    key={id} 
-                    variant={filter === id ? 'default' : 'ghost'} 
-                    size="sm"
-                    onClick={() => setFilter(id)}
-                    className={cn(
-                      "flex-1 justify-center sm:justify-start px-4 py-1.5 h-auto transition-all duration-200",
-                      filter === id && 'shadow-md bg-primary/90 hover:bg-primary'
-                    )}
-                  >
-                    <Icon className="h-4 w-4 mr-2" />
-                    {label}
-                  </Button>
-                ))}
-              </div>
             </div>
 
             <div className="space-y-4">
@@ -136,22 +119,41 @@ export default function Home() {
                 return (
                   <div key={system} className={cn(
                       "p-4 rounded-lg bg-primary/5 border border-primary/20 transition-all",
-                      isHidden && 'pb-2'
+                      isHidden ? 'pb-2' : 'pb-4'
                     )}>
                     <div className={cn(
-                      "flex items-center gap-2",
+                      "flex items-center justify-between gap-2",
                       isHidden ? 'mb-0' : 'mb-4'
                     )}>
-                      <h3 className={cn("text-2xl font-bold font-headline", system === 'NASA News' ? 'text-amber-400' : 'text-primary')}>{system}</h3>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => toggleSystemVisibility(system)}
-                        className="h-7 w-7 text-muted-foreground"
-                        aria-label={isHidden ? `Show posts from ${system}` : `Hide posts from ${system}`}
-                      >
-                        {isHidden ? <ChevronDown className="h-5 w-5" /> : <ChevronUp className="h-5 w-5" />}
-                      </Button>
+                      <div className="flex items-center gap-2">
+                        <h3 className={cn("text-2xl font-bold font-headline", system === 'NASA News' ? 'text-amber-400' : 'text-primary')}>{system}</h3>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => toggleSystemVisibility(system)}
+                          className="h-7 w-7 text-muted-foreground"
+                          aria-label={isHidden ? `Show posts from ${system}` : `Hide posts from ${system}`}
+                        >
+                          {isHidden ? <ChevronDown className="h-5 w-5" /> : <ChevronUp className="h-5 w-5" />}
+                        </Button>
+                      </div>
+                      <div className="flex items-center gap-2 rounded-lg bg-card/80 border p-1">
+                        {filterButtons.map(({id, label, icon: Icon}) => (
+                          <Button 
+                            key={id} 
+                            variant={filter === id ? 'default' : 'ghost'} 
+                            size="sm"
+                            onClick={() => setFilter(id)}
+                            className={cn(
+                              "flex-1 justify-center sm:justify-start px-4 py-1.5 h-auto transition-all duration-200",
+                              filter === id && 'shadow-md bg-primary/90 hover:bg-primary'
+                            )}
+                          >
+                            <Icon className="h-4 w-4 mr-2" />
+                            {label}
+                          </Button>
+                        ))}
+                      </div>
                     </div>
                     {!isHidden && (
                       <div className="space-y-4">
