@@ -103,7 +103,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="space-y-8">
+            <div className="space-y-4">
               {isLoading && Array.from({ length: 3 }).map((_, i) => <PostItem.Skeleton key={i} />)}
               {!isLoading && posts && posts.length === 0 && (
                 <div className="text-center py-12 text-muted-foreground">
@@ -114,8 +114,14 @@ export default function Home() {
               {!isLoading && Object.entries(postsBySystem).map(([system, systemPosts]) => {
                 const isHidden = hiddenSystems.has(system);
                 return (
-                  <div key={system} className="p-4 rounded-lg bg-primary/5 border border-primary/20">
-                    <div className="flex items-center gap-2 mb-4">
+                  <div key={system} className={cn(
+                      "p-4 rounded-lg bg-primary/5 border border-primary/20 transition-all",
+                      isHidden && 'pb-2'
+                    )}>
+                    <div className={cn(
+                      "flex items-center gap-2",
+                      isHidden ? 'mb-0' : 'mb-4'
+                    )}>
                       <h3 className={cn("text-2xl font-bold font-headline", system === 'NASA News' ? 'text-amber-400' : 'text-primary')}>{system}</h3>
                       <Button
                         variant="ghost"
