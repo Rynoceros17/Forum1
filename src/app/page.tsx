@@ -1,4 +1,4 @@
-
+//Made with Firebase Studio AI
 'use client';
 import { Header } from "@/components/layout/header";
 import { PostItem } from "@/components/posts/post-item";
