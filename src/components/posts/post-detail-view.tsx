@@ -19,10 +19,8 @@ import Image from "next/image";
 import { formatDistanceToNow } from "date-fns";
 import { VoteButtons } from "@/components/posts/vote-buttons";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, Share2 } from "lucide-react";
+import { Share2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CreateCommentForm } from "@/components/comments/create-comment-form";
-import { CommentList } from "@/components/comments/comment-list";
 import { systems } from "@/app/lib/mock-data";
 import { ScrollArea } from "../ui/scroll-area";
 
@@ -89,7 +87,7 @@ export function PostDetailView({ postId }: { postId: string }) {
               <VoteButtons postId={post.id} initialThrust={post.thrust} />
             </div>
             <div className="flex-1">
-              <CardHeader className="pb-2">
+              <CardHeader className="pb-2 relative">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
                   <Avatar className="h-5 w-5">
                     <AvatarImage
@@ -115,6 +113,9 @@ export function PostDetailView({ postId }: { postId: string }) {
                 <CardTitle className="text-xl md:text-2xl font-headline mt-2">
                   {post.title}
                 </CardTitle>
+                <Button variant="ghost" size="icon" className="absolute top-2 right-2 text-muted-foreground hover:text-primary h-8 w-8">
+                  <Share2 className="h-4 w-4" />
+                </Button>
               </CardHeader>
               <CardContent className="pr-4 sm:pr-6">
                 {post.imageUrl && (
@@ -132,32 +133,9 @@ export function PostDetailView({ postId }: { postId: string }) {
                   {post.content}
                 </p>
               </CardContent>
-              <CardFooter className="gap-2 sm:gap-4 pb-4">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-muted-foreground hover:text-black"
-                >
-                  <MessageSquare className="mr-2 h-4 w-4" />
-                  {post.commentCount || 0} Comments
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-muted-foreground hover:text-primary"
-                >
-                  <Share2 className="mr-2 h-4 w-4" />
-                  Share
-                </Button>
-              </CardFooter>
             </div>
           </div>
         </Card>
-
-        <div className="mt-4">
-          <CreateCommentForm postId={post.id} />
-          <CommentList postId={post.id} />
-        </div>
       </div>
     </ScrollArea>
   );

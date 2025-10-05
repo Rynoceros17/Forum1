@@ -13,12 +13,3 @@ export type Post = {
   thrust: number;
   commentCount: number;
 };
-
-export type Comment = {
-  id: string;
-  authorId: string;
-  author: string;
-  avatar: string;
-  content: string;
-  createdAt: Timestamp;
-};

@@ -121,37 +121,6 @@
         "slug",
         "description"
       ]
-    },
-    "Comment": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Comment",
-      "type": "object",
-      "description": "A comment made by a user on a post.",
-      "properties": {
-        "content": {
-          "type": "string"
-        },
-        "authorId": {
-          "type": "string"
-        },
-        "author": {
-          "type": "string"
-        },
-        "avatar": {
-          "type": "string",
-          "format": "uri"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        }
-      },
-      "required": [
-        "content",
-        "authorId",
-        "author",
-        "createdAt"
-      ]
     }
   },
   "auth": {
@@ -172,12 +141,6 @@
         "$ref": "#/entities/Post"
       },
       "description": "Stores all posts across all systems."
-    },
-    "/posts/{postId}/comments/{commentId}": {
-      "schema": {
-        "$ref": "#/entities/Comment"
-      },
-      "description": "Stores comments for a specific post."
     },
     "/systems/{systemId}": {
       "schema": {

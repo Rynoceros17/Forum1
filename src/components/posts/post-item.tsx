@@ -1,10 +1,10 @@
 'use client';
-import { MessageSquare, Share2 } from "lucide-react";
+import { Share2 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { VoteButtons } from "./vote-buttons";
 import type { Post } from "@/app/lib/types";
 import { formatDistanceToNow } from 'date-fns';
@@ -31,27 +31,30 @@ export function PostItem({ post }: { post: Post }) {
         </div>
         <PostDetailDialog postId={post.id}>
             <div className="flex-1 cursor-pointer">
-            <CardHeader className="pb-2">
+            <CardHeader className="pb-2 relative">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
-                <Avatar className="h-5 w-5">
-                    <AvatarImage src={post.avatar} alt={`@${post.author}`} />
-                    <AvatarFallback>{post.system.charAt(0).toUpperCase()}</AvatarFallback>
-                </Avatar>
-                <Link 
-                    href={`/s/${systemSlug}`} 
-                    className={cn(
-                        "font-bold text-foreground hover:underline hover:text-primary z-10 relative",
-                        post.system === 'NASA News' && 'hover:text-amber-400'
-                    )}
-                    onClick={(e) => e.stopPropagation()}
-                >
-                    s/{post.system}
-                </Link>
-                <span className="hidden sm:inline">•</span>
-                <span className="hidden sm:inline">Posted by u/{post.author}</span>
-                <span className="whitespace-nowrap">{timeAgo}</span>
+                    <Avatar className="h-5 w-5">
+                        <AvatarImage src={post.avatar} alt={`@${post.author}`} />
+                        <AvatarFallback>{post.system.charAt(0).toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                    <Link 
+                        href={`/s/${systemSlug}`} 
+                        className={cn(
+                            "font-bold text-foreground hover:underline hover:text-primary z-10 relative",
+                            post.system === 'NASA News' && 'hover:text-amber-400'
+                        )}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        s/{post.system}
+                    </Link>
+                    <span className="hidden sm:inline">•</span>
+                    <span className="hidden sm:inline">Posted by u/{post.author}</span>
+                    <span className="whitespace-nowrap">{timeAgo}</span>
                 </div>
                 <CardTitle className="text-lg font-headline mt-2">{post.title}</CardTitle>
+                <Button variant="ghost" size="icon" className="absolute top-2 right-2 text-muted-foreground hover:text-primary h-8 w-8">
+                  <Share2 className="h-4 w-4" />
+                </Button>
             </CardHeader>
             <CardContent className="pr-4 sm:pr-6">
                 {post.imageUrl && (
@@ -70,18 +73,6 @@ export function PostItem({ post }: { post: Post }) {
             </div>
         </PostDetailDialog>
       </div>
-       <CardFooter className="gap-2 sm:gap-4 pb-4 bg-black/10 pt-4">
-            <PostDetailDialog postId={post.id}>
-                <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-black">
-                    <MessageSquare className="mr-2 h-4 w-4" />
-                    {post.commentCount || 0} Comments
-                </Button>
-            </PostDetailDialog>
-            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary">
-              <Share2 className="mr-2 h-4 w-4" />
-              Share
-            </Button>
-        </CardFooter>
     </Card>
   );
 }
