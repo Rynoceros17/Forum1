@@ -1,22 +1,11 @@
+
 'use client';
 
-import { useCollection, useFirestore } from '@/firebase';
-import { useMemoFirebase } from '@/firebase/provider';
-import { collection, orderBy, query } from 'firebase/firestore';
 import type { Comment } from '@/app/lib/types';
 import { CommentItem } from './comment-item';
-import { Separator } from '../ui/separator';
 import { Skeleton } from '../ui/skeleton';
 
-export function CommentList({ postId }: { postId: string }) {
-  const firestore = useFirestore();
-
-  const commentsQuery = useMemoFirebase(() => {
-    if (!firestore) return null;
-    return query(collection(firestore, 'posts', postId, 'comments'), orderBy('createdAt', 'asc'));
-  }, [firestore, postId]);
-
-  const { data: comments, isLoading } = useCollection<Comment>(commentsQuery);
+export function CommentList({ comments, isLoading }: { comments: Comment[] | null, isLoading?: boolean }) {
 
   if (isLoading) {
     return (

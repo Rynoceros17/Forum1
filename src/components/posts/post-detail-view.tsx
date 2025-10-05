@@ -1,9 +1,10 @@
+
 "use client";
 
 import { useDoc, useFirestore } from "@/firebase";
 import { useMemoFirebase } from "@/firebase/provider";
 import { doc } from "firebase/firestore";
-import type { Post } from "@/app/lib/types";
+import type { Post, Comment } from "@/app/lib/types";
 import {
   Card,
   CardContent,
@@ -24,6 +25,9 @@ import { CreateCommentForm } from "@/components/comments/create-comment-form";
 import { CommentList } from "@/components/comments/comment-list";
 import { systems } from "@/app/lib/mock-data";
 import { ScrollArea } from "../ui/scroll-area";
+import { useState, useMemo } from 'react';
+import { useUser } from "@/firebase";
+import { Timestamp } from "firebase/firestore";
 
 function PostLoadingSkeleton() {
   return (
@@ -46,6 +50,8 @@ function PostLoadingSkeleton() {
 
 export function PostDetailView({ postId }: { postId: string }) {
   const firestore = useFirestore();
+  const { user } = useUser();
+  const [localComments, setLocalComments] = useState<Comment[]>([]);
 
   const postRef = useMemoFirebase(() => {
     if (!firestore || !postId) return null;
@@ -53,6 +59,36 @@ export function PostDetailView({ postId }: { postId: string }) {
   }, [firestore, postId]);
 
   const { data: post, isLoading } = useDoc<Post>(postRef);
+
+  const commentsQuery = useMemoFirebase(() => {
+    if (!firestore || !post) return null;
+    // We still fetch existing comments, but new ones are handled locally.
+    return postRef ? doc(firestore, 'posts', postId) : null;
+  }, [firestore, post, postId]);
+
+  const { data: initialCommentsData } = useDoc<{ comments?: Comment[] }>(commentsQuery);
+  const initialComments = useMemo(() => initialCommentsData?.comments || [], [initialCommentsData]);
+
+  const allComments = useMemo(() => {
+    // Combine initial comments from DB with new local comments
+    const combined = [...initialComments, ...localComments];
+    // Sort them to ensure order
+    return combined.sort((a, b) => a.createdAt.toMillis() - b.createdAt.toMillis());
+  }, [initialComments, localComments]);
+
+
+  const handleAddComment = (content: string) => {
+    if (!user) return;
+    const newComment: Comment = {
+      id: `local-${Date.now()}`,
+      content,
+      authorId: user.uid,
+      author: user.displayName || 'Anonymous',
+      avatar: user.photoURL || `https://api.dicebear.com/8.x/bottts/svg?seed=${user.uid}`,
+      createdAt: Timestamp.now(),
+    };
+    setLocalComments(prev => [...prev, newComment]);
+  };
 
   const timeAgo = post?.createdAt
     ? formatDistanceToNow(post.createdAt.toDate(), { addSuffix: true })
@@ -78,6 +114,8 @@ export function PostDetailView({ postId }: { postId: string }) {
       </Card>
     );
   }
+
+  const commentCount = (post.commentCount || 0) + localComments.length;
 
   return (
     <ScrollArea className="flex-1">
@@ -138,7 +176,7 @@ export function PostDetailView({ postId }: { postId: string }) {
                   className="text-muted-foreground hover:text-black"
                 >
                   <MessageSquare className="mr-2 h-4 w-4" />
-                  {post.commentCount || 0} Comments
+                  {commentCount} Comments
                 </Button>
                 <Button
                   variant="ghost"
@@ -154,8 +192,8 @@ export function PostDetailView({ postId }: { postId: string }) {
         </Card>
 
         <div className="mt-4">
-          <CreateCommentForm postId={post.id} />
-          <CommentList postId={post.id} />
+          <CreateCommentForm postId={post.id} onAddComment={handleAddComment} />
+          <CommentList comments={allComments} />
         </div>
       </div>
     </ScrollArea>

@@ -1,23 +1,22 @@
+
 'use client';
 
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useFirestore, useUser } from '@/firebase';
+import { useUser } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { collection, doc, increment, serverTimestamp, writeBatch } from 'firebase/firestore';
 import { AuthDialog } from '../auth/auth-dialog';
 
 const formSchema = z.object({
   content: z.string().min(1, 'Comment cannot be empty.'),
 });
 
-export function CreateCommentForm({ postId }: { postId: string }) {
+export function CreateCommentForm({ postId, onAddComment }: { postId: string, onAddComment: (content: string) => void }) {
   const { user } = useUser();
-  const firestore = useFirestore();
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -27,35 +26,17 @@ export function CreateCommentForm({ postId }: { postId: string }) {
     },
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (!user || !firestore) return;
-
-    const postRef = doc(firestore, 'posts', postId);
-    const commentRef = doc(collection(firestore, 'posts', postId, 'comments'));
-    
-    const batch = writeBatch(firestore);
-
-    batch.set(commentRef, {
-      content: values.content,
-      authorId: user.uid,
-      author: user.displayName || user.email,
-      avatar: user.photoURL || `https://api.dicebear.com/8.x/bottts/svg?seed=${user.uid}`,
-      createdAt: serverTimestamp(),
-    });
-
-    batch.update(postRef, { commentCount: increment(1) });
-
-    try {
-        await batch.commit();
-        form.reset();
-    } catch(error: any) {
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!user) {
         toast({
             variant: "destructive",
-            title: "Failed to comment",
-            description: error.message || "Could not submit your comment. Please try again."
+            title: "Not logged in",
+            description: "You must be logged in to comment."
         })
-    }
-
+        return;
+    };
+    onAddComment(values.content);
+    form.reset();
   }
 
   if (!user) {
