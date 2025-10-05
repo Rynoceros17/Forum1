@@ -11,6 +11,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { Skeleton } from "../ui/skeleton";
 import { systems } from "@/app/lib/mock-data";
 import { cn } from "@/lib/utils";
+import { PostDetailDialog } from "./post-detail-dialog";
 
 export function PostItem({ post }: { post: Post }) {
 
@@ -28,52 +29,54 @@ export function PostItem({ post }: { post: Post }) {
         <div className="p-2 sm:p-4 bg-black/30 flex flex-col items-center justify-start gap-1">
           <VoteButtons postId={post.id} initialThrust={post.thrust} />
         </div>
-        <Link href={`/p/${post.id}`} className="flex-1 cursor-pointer">
-          <CardHeader className="pb-2">
-            <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
-              <Avatar className="h-5 w-5">
-                <AvatarImage src={post.avatar} alt={`@${post.author}`} />
-                <AvatarFallback>{post.system.charAt(0).toUpperCase()}</AvatarFallback>
-              </Avatar>
-              <Link 
-                href={`/s/${systemSlug}`} 
-                className={cn(
-                    "font-bold text-foreground hover:underline hover:text-primary z-10 relative",
-                    post.system === 'NASA News' && 'hover:text-amber-400'
+        <PostDetailDialog postId={post.id}>
+            <div className="flex-1 cursor-pointer">
+            <CardHeader className="pb-2">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
+                <Avatar className="h-5 w-5">
+                    <AvatarImage src={post.avatar} alt={`@${post.author}`} />
+                    <AvatarFallback>{post.system.charAt(0).toUpperCase()}</AvatarFallback>
+                </Avatar>
+                <Link 
+                    href={`/s/${systemSlug}`} 
+                    className={cn(
+                        "font-bold text-foreground hover:underline hover:text-primary z-10 relative",
+                        post.system === 'NASA News' && 'hover:text-amber-400'
+                    )}
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    s/{post.system}
+                </Link>
+                <span className="hidden sm:inline">•</span>
+                <span className="hidden sm:inline">Posted by u/{post.author}</span>
+                <span className="whitespace-nowrap">{timeAgo}</span>
+                </div>
+                <CardTitle className="text-lg font-headline mt-2">{post.title}</CardTitle>
+            </CardHeader>
+            <CardContent className="pr-4 sm:pr-6">
+                {post.imageUrl && (
+                <div className="mt-2 mb-4 max-h-96 overflow-hidden rounded-md border border-border/20">
+                    <Image 
+                    src={post.imageUrl} 
+                    alt={post.title} 
+                    width={600}
+                    height={400}
+                    className="w-full object-contain"
+                    />
+                </div>
                 )}
-                onClick={(e) => e.stopPropagation()}
-              >
-                s/{post.system}
-              </Link>
-              <span className="hidden sm:inline">•</span>
-              <span className="hidden sm:inline">Posted by u/{post.author}</span>
-              <span className="whitespace-nowrap">{timeAgo}</span>
+                <p className="text-sm text-foreground/80 line-clamp-4">{post.content}</p>
+            </CardContent>
             </div>
-            <CardTitle className="text-lg font-headline mt-2">{post.title}</CardTitle>
-          </CardHeader>
-          <CardContent className="pr-4 sm:pr-6">
-             {post.imageUrl && (
-              <div className="mt-2 mb-4 max-h-96 overflow-hidden rounded-md border border-border/20">
-                <Image 
-                  src={post.imageUrl} 
-                  alt={post.title} 
-                  width={600}
-                  height={400}
-                  className="w-full object-contain"
-                />
-              </div>
-            )}
-            <p className="text-sm text-foreground/80 line-clamp-4">{post.content}</p>
-          </CardContent>
-        </Link>
+        </PostDetailDialog>
       </div>
        <CardFooter className="gap-2 sm:gap-4 pb-4 bg-black/10 pt-4">
-            <Link href={`/p/${post.id}#comments`}>
-              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-black">
-                <MessageSquare className="mr-2 h-4 w-4" />
-                {post.commentCount || 0} Comments
-              </Button>
-            </Link>
+            <PostDetailDialog postId={post.id}>
+                <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-black">
+                    <MessageSquare className="mr-2 h-4 w-4" />
+                    {post.commentCount || 0} Comments
+                </Button>
+            </PostDetailDialog>
             <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary">
               <Share2 className="mr-2 h-4 w-4" />
               Share
