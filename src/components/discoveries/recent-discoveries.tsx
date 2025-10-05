@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 
 export function RecentDiscoveries() {
   return (
-    <Card className="border-amber-400/50 bg-card/80 backdrop-blur-sm">
+    <Card className="bg-card/80 backdrop-blur-sm border-border/40">
       <CardHeader>
         <CardTitle className="font-headline text-xl">Recent Exoplanet Discoveries</CardTitle>
       </CardHeader>
@@ -19,7 +19,7 @@ export function RecentDiscoveries() {
           <CarouselContent>
             {recentDiscoveries.map((planet) => (
               <CarouselItem key={planet.id} className="md:basis-1/2 lg:basis-1/3">
-                <div className="group relative overflow-hidden rounded-lg">
+                <div className="group relative overflow-hidden rounded-lg border-2 border-transparent hover:border-amber-400/80 transition-colors duration-300">
                   {planet.banner && (
                      <div className={cn(
                         "absolute top-0 left-0 z-10 px-3 py-1 text-xs font-bold text-white uppercase tracking-wider",
