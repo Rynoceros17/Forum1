@@ -6,7 +6,7 @@ import { collection, orderBy, query, limit } from "firebase/firestore";
 import type { Post } from "@/app/lib/types";
 import { useMemoFirebase } from "@/firebase/provider";
 import { RecentDiscoveries } from "@/components/discoveries/recent-discoveries";
-import { useState }from 'react';
+import { useState, useEffect }from 'react';
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Flame, Star, Zap, ChevronDown, ChevronUp } from "lucide-react";
@@ -17,6 +17,7 @@ export default function Home() {
   const firestore = useFirestore();
   const [filter, setFilter] = useState<FilterOption>('new');
   const [hiddenSystems, setHiddenSystems] = useState<Set<string>>(new Set());
+  const [systemsInitialized, setSystemsInitialized] = useState(false);
 
   const postsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -46,6 +47,15 @@ export default function Home() {
     acc[post.system].push(post);
     return acc;
   }, {} as Record<string, Post[]>) || {};
+
+  useEffect(() => {
+    if (posts && !systemsInitialized) {
+      const allSystems = Object.keys(postsBySystem);
+      const initialHidden = new Set(allSystems.filter(system => system !== 'Space Talk'));
+      setHiddenSystems(initialHidden);
+      setSystemsInitialized(true);
+    }
+  }, [posts, postsBySystem, systemsInitialized]);
 
   const filterButtons: {id: FilterOption, label: string, icon: React.ElementType}[] = [
     { id: 'new', label: 'New', icon: Zap },
