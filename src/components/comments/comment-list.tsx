@@ -4,8 +4,19 @@
 import type { Comment } from '@/app/lib/types';
 import { CommentItem } from './comment-item';
 import { Skeleton } from '../ui/skeleton';
+import { useCollection, useFirestore } from '@/firebase';
+import { collection, query, orderBy } from 'firebase/firestore';
+import { useMemoFirebase } from '@/firebase/provider';
 
-export function CommentList({ comments, isLoading }: { comments: Comment[] | null, isLoading?: boolean }) {
+export function CommentList({ postId }: { postId: string }) {
+  const firestore = useFirestore();
+
+  const commentsQuery = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return query(collection(firestore, 'posts', postId, 'comments'), orderBy('createdAt', 'asc'));
+  }, [firestore, postId]);
+  
+  const { data: comments, isLoading } = useCollection<Comment>(commentsQuery);
 
   if (isLoading) {
     return (
@@ -31,6 +42,9 @@ export function CommentList({ comments, isLoading }: { comments: Comment[] | nul
         {comments && comments.map((comment) => (
           <CommentItem key={comment.id} comment={comment} />
         ))}
+         {comments && comments.length === 0 && (
+            <p className="text-muted-foreground py-4 text-sm">No comments yet. Be the first to share your thoughts!</p>
+        )}
       </div>
     </div>
   );

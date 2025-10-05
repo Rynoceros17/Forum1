@@ -16,6 +16,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { CreateCommentForm } from '@/components/comments/create-comment-form';
 import { CommentList } from '@/components/comments/comment-list';
 import { systems } from '@/app/lib/mock-data';
+import Image from 'next/image';
 
 
 function PostLoadingSkeleton() {
@@ -78,6 +79,11 @@ export default function PostPage({ params: { postId } }: { params: { postId: str
                         <CardTitle className="text-xl md:text-2xl font-headline mt-2">{post.title}</CardTitle>
                     </CardHeader>
                     <CardContent className="pr-4 sm:pr-6">
+                        {post.imageUrl && (
+                            <div className="my-4 max-h-[600px] overflow-hidden rounded-md border">
+                                <Image src={post.imageUrl} alt={post.title} width={800} height={600} className="w-full object-contain" />
+                            </div>
+                        )}
                         <p className="text-base text-foreground/90 whitespace-pre-wrap">{post.content}</p>
                     </CardContent>
                     <CardFooter className="gap-2 sm:gap-4 pb-4">

@@ -4,19 +4,22 @@
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useUser } from '@/firebase';
+import { useFirestore, useUser } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { AuthDialog } from '../auth/auth-dialog';
+import { collection, doc, increment, serverTimestamp } from 'firebase/firestore';
+import { addDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
 const formSchema = z.object({
   content: z.string().min(1, 'Comment cannot be empty.'),
 });
 
-export function CreateCommentForm({ postId, onAddComment }: { postId: string, onAddComment: (content: string) => void }) {
+export function CreateCommentForm({ postId }: { postId: string }) {
   const { user } = useUser();
+  const firestore = useFirestore();
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -27,7 +30,7 @@ export function CreateCommentForm({ postId, onAddComment }: { postId: string, on
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    if (!user) {
+    if (!user || !firestore) {
         toast({
             variant: "destructive",
             title: "Not logged in",
@@ -35,7 +38,26 @@ export function CreateCommentForm({ postId, onAddComment }: { postId: string, on
         })
         return;
     };
-    onAddComment(values.content);
+    
+    const commentsCollection = collection(firestore, 'posts', postId, 'comments');
+    addDocumentNonBlocking(commentsCollection, {
+      content: values.content,
+      authorId: user.uid,
+      author: user.displayName || 'Anonymous',
+      avatar: user.photoURL || `https://api.dicebear.com/8.x/bottts/svg?seed=${user.uid}`,
+      createdAt: serverTimestamp(),
+    });
+
+    const postRef = doc(firestore, 'posts', postId);
+    updateDocumentNonBlocking(postRef, {
+        commentCount: increment(1)
+    });
+
+    toast({
+        title: "Comment added!",
+        description: "Your thoughts have been shared."
+    })
+
     form.reset();
   }
 
