@@ -38,14 +38,16 @@ export const posts: Post[] = [
 ];
 
 export type System = {
+  id?: string;
   name: string;
   slug: string;
   description: string;
-  members: string;
+  members: number;
+  membersDisplay: string;
 };
 
 export const systems: System[] = [
-  { name: "Space Talk", slug: "spacetalk", description: "General discussions about the cosmos, from astrophysics to science fiction.", members: "1.2M" },
-  { name: "Exoplanet Announcements", slug: "exoplanet-announcements", description: "The latest official discoveries and data from the frontiers of space.", members: "876k" },
-  { name: "NASA News", slug: "nasa-news", description: "The latest news and announcements directly from NASA.", members: "53k" },
+  { name: "Space Talk", slug: "spacetalk", description: "General discussions about the cosmos, from astrophysics to science fiction.", members: 1200000, membersDisplay: "1.2M" },
+  { name: "Exoplanet Announcements", slug: "exoplanet-announcements", description: "The latest official discoveries and data from the frontiers of space.", members: 876000, membersDisplay: "876k" },
+  { name: "NASA News", slug: "nasa-news", description: "The latest news and announcements directly from NASA.", members: 53000, membersDisplay: "53k" },
 ];

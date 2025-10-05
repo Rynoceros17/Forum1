@@ -69,7 +69,7 @@ export default function SystemPage({ params }: { params: { systemName: string } 
                 <Separator className="my-4" />
                 <div className="flex justify-around text-center">
                   <div>
-                    <p className="font-bold text-lg">{currentSystem.members}</p>
+                    <p className="font-bold text-lg">{currentSystem.membersDisplay}</p>
                     <p className="text-xs text-muted-foreground">Astronauts</p>
                   </div>
                   <div>

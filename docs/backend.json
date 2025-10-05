@@ -106,12 +106,20 @@
         "name": {
           "type": "string"
         },
+        "slug": {
+            "type": "string"
+        },
+        "description": {
+            "type": "string"
+        },
         "members": {
           "type": "number"
         }
       },
       "required": [
-        "name"
+        "name",
+        "slug",
+        "description"
       ]
     },
     "Comment": {

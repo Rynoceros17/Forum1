@@ -7,8 +7,7 @@ import { UserNav } from "../auth/user-nav";
 import { useUser } from "@/firebase";
 import { AuthDialog } from "../auth/auth-dialog";
 import { Skeleton } from "../ui/skeleton";
-import { Button } from "../ui/button";
-import { PlusCircle } from "lucide-react";
+import { CreateSystemDialog } from "../systems/create-system-dialog";
 
 export function Header() {
   const { user, isUserLoading } = useUser();
@@ -39,9 +38,10 @@ export function Header() {
           </nav>
         </div>
         <div className="flex flex-1 items-center justify-end gap-2">
-          {isUserLoading && <Skeleton className="h-9 w-24 rounded-md" />}
+          {isUserLoading && <Skeleton className="h-9 w-48 rounded-md" />}
           {!isUserLoading && user && (
             <>
+              <CreateSystemDialog />
               <CreatePostDialog />
               <UserNav user={user} />
             </>
@@ -49,6 +49,7 @@ export function Header() {
           {!isUserLoading && !user && (
             <>
               {/* The CreatePostDialog now handles showing the AuthDialog for non-users */}
+              <CreateSystemDialog />
               <CreatePostDialog />
               <AuthDialog />
             </>
