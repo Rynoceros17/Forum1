@@ -116,8 +116,8 @@ export default function Home() {
       <Header />
       <main className="container mx-auto px-4 py-8">
         
-        <div className="mt-8">
-            <div className="flex flex-col sm:flex-row justify-between items-baseline mb-4 gap-4">
+        <div>
+            <div className="flex justify-center mb-6">
               <h2 className="text-3xl font-bold font-headline">Exoplanets Forum</h2>
             </div>
 
