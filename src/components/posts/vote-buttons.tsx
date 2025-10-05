@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { useFirestore, useUser } from "@/firebase";
 import { doc, increment, writeBatch } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
+import { setDocumentNonBlocking, deleteDocumentNonBlocking, updateDocumentNonBlocking } from "@/firebase/non-blocking-updates";
 
 type VoteState = "up" | "down" | null;
 
@@ -30,40 +31,29 @@ export function VoteButtons({ postId, initialThrust }: { postId: string, initial
 
     const postRef = doc(firestore, "posts", postId);
     const userVoteRef = doc(firestore, "users", user.uid, "votes", postId);
-    const batch = writeBatch(firestore);
-
+    
     let thrustChange = 0;
     let newVoteState: VoteState = newVote;
+
+    const originalThrust = thrust;
+    const originalVote = vote;
 
     if (newVote === vote) { // Undoing vote
       newVoteState = null;
       thrustChange = newVote === 'up' ? -1 : 1;
-      batch.delete(userVoteRef);
+      deleteDocumentNonBlocking(userVoteRef);
     } else if (vote !== null) { // Switching vote
       thrustChange = newVote === 'up' ? 2 : -2;
-      batch.set(userVoteRef, { vote: newVote });
+      setDocumentNonBlocking(userVoteRef, { vote: newVote }, { merge: false });
     } else { // New vote
       thrustChange = newVote === 'up' ? 1 : -1;
-      batch.set(userVoteRef, { vote: newVote });
+      setDocumentNonBlocking(userVoteRef, { vote: newVote }, { merge: false });
     }
 
     setThrust(thrust + thrustChange);
     setVote(newVoteState);
 
-    batch.update(postRef, { thrust: increment(thrustChange) });
-    
-    try {
-      await batch.commit();
-    } catch (error) {
-      console.error("Error committing vote: ", error);
-      setThrust(thrust); // Revert optimistic update
-      setVote(vote);
-      toast({
-        variant: "destructive",
-        title: "Vote Error",
-        description: "Could not save your vote. Please try again.",
-      });
-    }
+    updateDocumentNonBlocking(postRef, { thrust: increment(thrustChange) });
   };
 
   return (

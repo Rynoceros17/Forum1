@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAuth, useFirestore } from "@/firebase";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { doc, serverTimestamp } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
 import { setDocumentNonBlocking } from "@/firebase/non-blocking-updates";
 
